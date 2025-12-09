@@ -1,0 +1,37 @@
+{
+  "name": "room-planner",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "dev": "ng serve --live-reload false",
+    "start": "node server.js",
+    "build": "ng build --configuration production --output-hashing=all"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular-devkit/build-angular": "^16.1.8",
+    "@angular/cli": "^16.1.8",
+    "@angular/common": "^16.1.8",
+    "@angular/compiler": "^16.1.8",
+    "@angular/compiler-cli": "^16.1.8",
+    "@angular/core": "^16.1.8",
+    "@angular/forms": "^16.1.8",
+    "@angular/platform-browser": "^16.1.8",
+    "@angular/platform-browser-dynamic": "^16.1.8",
+    "@angular/router": "^16.1.8",
+    "@angular/service-worker": "^16.1.8",
+    "pixi.js": "^8.14.3",
+    "rxjs": "~7.5.0",
+    "tslib": "^2.3.0",
+    "typescript": "~5.0.0",
+    "zone.js": "~0.13.1"
+  },
+  "engines": {
+    "npm": "~8.19.3",
+    "node": "~16.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.18.126",
+    "@webgpu/types": "^0.1.64"
+  }
+}

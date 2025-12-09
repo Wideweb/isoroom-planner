@@ -1,0 +1,15 @@
+{
+  "frames": {
+    "fridge": {
+      "frame": { "x": 0, "y": 0, "w": 248, "h": 390 }
+    },
+    "shelf": {
+      "frame": { "x": 249, "y": 0, "w": 226, "h": 300 }
+    }
+  },
+  "meta": {
+    "image": "atlas.png",
+    "size": { "w": 1045, "h": 390 },
+    "scale": 1
+  }
+}

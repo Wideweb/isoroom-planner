@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /terms-of-use
+Disallow: /premium
+Disallow: /about
+Disallow: /donate
+Disallow: /login
+Disallow: /sign-up
+Disallow: /password-reset
+Disallow: /payment-methods-credit-card
+Disallow: /payment-methods-erip
+
+Sitemap: https://room-planner.com/sitemap.xml
