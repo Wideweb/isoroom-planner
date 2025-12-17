@@ -23,7 +23,6 @@ export default class FurnituresRenderer {
             const placement = placements[item.index];
             const model = models[item.id];
             const sprite = this.furnitureRender.render(container, model, placement);
-            sprite.eventMode = 'static';
             const id = item.id;
             sprite.on('pointerdown', (event) => {
                 event.stopPropagation();

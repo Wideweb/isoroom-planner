@@ -28,6 +28,10 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
     if (event.key.toLowerCase() === 'r') {
       this.game.rotateSelected();
     }
+
+    if (event.key.toLowerCase() === 'escape') {
+      this.game.select(-1);
+    }
   }
 
   async ngAfterViewInit() {  

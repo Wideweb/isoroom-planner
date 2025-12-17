@@ -18,3 +18,9 @@ export const viewToIsoGrid = (viewPos: Vector2, camera: Camera, tileWidth: numbe
     const wrldPos = { x: viewPos.x + camera.position.x, y: viewPos.y + camera.position.y };
     return worldToIsoGrid(wrldPos, tileWidth, tileHeight);
 }
+
+export const isoGridToView = (pos: Vector2, camera: Camera, tileWidth: number, tileHeight: number): Vector2 => {
+    const x = (pos.x - pos.y) * (tileWidth / 2);
+    const y = (pos.x + pos.y) * (tileHeight / 2);
+    return { x: x - camera.position.x, y: y - camera.position.y };
+}

@@ -5,7 +5,7 @@ import * as PIXI from 'pixi.js';
 import RoomRenderer from "./renderers/room-renderer";
 import FurnituresRenderer from "./renderers/furnitures-renderer";
 import FurniturePreviewRenderer from "./renderers/furniture-preview-renderer";
-import { viewToIsoGrid } from "./math.helper";
+import { isoGridToView, isoGridToWorld, viewToIsoGrid } from "./math.helper";
 
 export default class GameLevel {
     public app = new PIXI.Application();
@@ -29,6 +29,7 @@ export default class GameLevel {
     private previewRenderer: FurniturePreviewRenderer = new FurniturePreviewRenderer(this.camera, this.tileWidth, this.tileHeight);
 
     private lastPointerPosition = ZERO_VECTOR();
+    private pointerAnchor = ZERO_VECTOR();
 
     public async init(canvas: HTMLCanvasElement) {
       await this.app.init({
@@ -64,7 +65,10 @@ export default class GameLevel {
 
       this.app.stage.on('pointerup', (event) => {
         if (this.furnitureSelected >= 0) {
-          const gridPos = viewToIsoGrid(this.lastPointerPosition, this.camera, this.tileWidth.value, this.tileHeight.value);
+          const x = this.lastPointerPosition.x - this.pointerAnchor.x;
+          const y = this.lastPointerPosition.y - this.pointerAnchor.y;
+
+          const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
           const placement: Placement = { position: gridPos, rotation: this.furnitureSelectedRotation };
           const isValid = this.isPlacementValid(this.furnitureSelected, placement);
 
@@ -89,7 +93,10 @@ export default class GameLevel {
       });
       
       if (this.furnitureSelected >= 0) {
-        const gridPos = viewToIsoGrid(this.lastPointerPosition, this.camera, this.tileWidth.value, this.tileHeight.value);
+        const x = this.lastPointerPosition.x - this.pointerAnchor.x;
+        const y = this.lastPointerPosition.y - this.pointerAnchor.y;
+
+        const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
         const placement: Placement = { position: gridPos, rotation: this.furnitureSelectedRotation };
         const isValid = this.isPlacementValid(this.furnitureSelected, placement);
         this.previewRenderer.render(this.app.stage, this.furnitures[this.furnitureSelected], placement, isValid);
@@ -192,6 +199,10 @@ export default class GameLevel {
           return;
         }
 
+        const viewPos = isoGridToView(this.furniturePlacement[toRemove].position, this.camera, this.tileWidth.value, this.tileHeight.value);
+        this.pointerAnchor.x = this.lastPointerPosition.x - viewPos.x;
+        this.pointerAnchor.y = this.lastPointerPosition.y - viewPos.y;
+
         this.furnitureSelectedRotation = this.furniturePlacement[toRemove].rotation;
         this.removeFurniture(index);
         this.furnitureSelected = index;
@@ -204,6 +215,7 @@ export default class GameLevel {
         this.furnitureSelected = index;
         this.furnitureSelectedRotation = 0;
       }
+      this.pointerAnchor = ZERO_VECTOR();
     }
 
     public rotateSelected() {

@@ -16,6 +16,18 @@ export default class FurnitureRenderer {
         sprite.alpha = alpha;
         sprite.tint = tint;
 
+        const halfw = spriteSrc.width * scale * 0.5;
+        const halfh = spriteSrc.height * scale * 0.5;
+
+        sprite.eventMode = 'static';
+        const points = [
+            new PIXI.Point(-halfw, -halfh),
+            new PIXI.Point(halfw, -halfh),
+            new PIXI.Point(halfw, halfh),
+            new PIXI.Point(-halfw, halfh)
+        ];
+        sprite.hitArea = new PIXI.Polygon(points);
+
         const worldPos = isoGridToWorld(placement.position, this.tileWidth.value, this.tileHeight.value);
         const screenPosX = worldPos.x - this.camera.position.x;
         const screenPosY = worldPos.y - this.camera.position.y;
