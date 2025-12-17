@@ -1,2 +1,6 @@
 <h1>Room Planner</h1>
-<game-level></game-level>
+<button (click)="loadLevel(1)">Level 1</button>
+<button (click)="loadLevel(2)">Level 2</button>
+<ng-container *ngIf="loaded$ | async">
+    <game-level [data]="(levelData$ | async)!"></game-level>
+</ng-container>

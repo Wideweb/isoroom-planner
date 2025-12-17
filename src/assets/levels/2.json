@@ -1,0 +1,128 @@
+{
+  "room": {
+    "cells": [
+      { "x": 0, "y": 0 },
+      { "x": 1, "y": 0 },
+      { "x": 2, "y": 0 },
+      { "x": 3, "y": 0 },
+
+      { "x": 0, "y": 1 },
+      { "x": 1, "y": 1 },
+      { "x": 2, "y": 1 },
+      { "x": 3, "y": 1 },
+
+      { "x": 0, "y": 2 },
+      { "x": 1, "y": 2 },
+      { "x": 2, "y": 2 },
+      { "x": 3, "y": 2 },
+
+      { "x": 0, "y": 3 },
+      { "x": 1, "y": 3 },
+      { "x": 2, "y": 3 },
+      { "x": 3, "y": 3 },
+
+      { "x": 0, "y": 4 },
+      { "x": 1, "y": 4 },
+      { "x": 2, "y": 4 },
+      { "x": 3, "y": 4 }
+    ],
+    "entrance": { "x": 0, "y": 0 }
+  },
+
+  "furnitures": [
+    {
+      "id": 1,
+      "name": "Fridge",
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "fridge",
+          "width": 32,
+          "height": 50,
+          "originX": 0,
+          "originY": 18
+        },
+        {
+          "name": "fridge",
+          "width": -32,
+          "height": 50,
+          "originX": 0,
+          "originY": 18
+        }
+      ],
+      "footprint": [
+        [
+          [1],
+          [5]
+        ],
+        [
+          [1, 5]
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Shelf",
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "shelf",
+          "width": 75,
+          "height": 100,
+          "originX": -15,
+          "originY": 35
+        },
+        {
+          "name": "shelf",
+          "width": -75,
+          "height": 100,
+          "originX": -15,
+          "originY": 20
+        }
+      ],
+      "footprint": [
+        [
+          [2, 1],
+          [5, 5]
+        ],
+        [
+          [1, 5],
+          [2, 5]
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Shelf",
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "shelf",
+          "width": 75,
+          "height": 100,
+          "originX": -15,
+          "originY": 35
+        },
+        {
+          "name": "shelf",
+          "width": -75,
+          "height": 100,
+          "originX": -15,
+          "originY": 20
+        }
+      ],
+      "footprint": [
+        [
+          [2, 1],
+          [5, 5]
+        ],
+        [
+          [1, 5],
+          [2, 5]
+        ]
+      ]
+    }
+  ],
+
+  "assets": ["assets/atlases/country_house.json"]
+}

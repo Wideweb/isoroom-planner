@@ -1,1 +1,15 @@
-<canvas #pixiCanvas></canvas>
+<div class="container">
+    <div class="canvas-wrapper">
+        <canvas #pixiCanvas></canvas>
+    </div>
+    <div class="side-panel">
+        <div class="furnitures-section">
+            <h3>Furnitures</h3>
+            <div class="list">
+            <ng-container *ngFor="let item of data.furnitures; let i = index">
+                <a class="item" (click)="selectFurniture(i)">{{ item.name }}</a>
+            </ng-container>
+            </div>
+        </div>
+    </div>
+</div>

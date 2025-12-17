@@ -3,6 +3,7 @@ import { AppInitService } from './services/app-init.service';
 import { AppComponent } from './components/app/app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { GameLevelComponent } from './components/game-level/game-level.component';
+import { HttpClientModule } from '@angular/common/http';
 
 export function initializeAppFactory(appInitService: AppInitService) {
   return (): Promise<any> => {
@@ -17,6 +18,7 @@ export function initializeAppFactory(appInitService: AppInitService) {
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
   ],
   providers: [
     {
