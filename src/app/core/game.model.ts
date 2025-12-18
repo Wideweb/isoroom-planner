@@ -142,7 +142,7 @@ export class SortedList<K, V> {
     getValue(key: K): V | undefined {
       const index = this.indexByKey.get(key)!;
       if (index !== undefined) {
-        this.items[index].value;
+        return this.items[index].value;
       }
       return undefined;
     }
