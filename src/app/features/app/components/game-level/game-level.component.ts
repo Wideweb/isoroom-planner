@@ -38,8 +38,8 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
     await this.game.init(this.pixiCanvas.nativeElement);
     await this.game.start(this.data);
 
-    this.resizeObserver = new ResizeObserver(() => this.game.updateViewPort());
-    this.resizeObserver.observe(this.pixiCanvas.nativeElement.parentElement!);
+    //this.resizeObserver = new ResizeObserver(() => this.game.updateViewPort());
+    //this.resizeObserver.observe(this.pixiCanvas.nativeElement.parentElement!);
   }
 
   selectFurniture(index: number) {
@@ -47,7 +47,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.resizeObserver.disconnect();
+    //this.resizeObserver.disconnect();
     this.game.destroy();
   }
 }

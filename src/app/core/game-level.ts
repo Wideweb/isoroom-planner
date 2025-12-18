@@ -1,11 +1,11 @@
-import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, ZERO_VECTOR } from "./game.model";
+import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, ZERO_VECTOR, SortedList } from "./game.model";
 import { Grid } from "./grid";
 import { getAccessibilityCells, getFootprint, isPlacementValid } from "./furniture-placement.helper";
 import * as PIXI from 'pixi.js';
-import RoomRenderer from "./renderers/room-renderer";
-import FurnituresRenderer from "./renderers/furnitures-renderer";
-import FurniturePreviewRenderer from "./renderers/furniture-preview-renderer";
-import { isoGridToView, isoGridToWorld, viewToIsoGrid } from "./math.helper";
+import { gridPlacementCompare, isoGridToView, viewToIsoGrid } from "./math.helper";
+import FurnitureView from "./views/furniture-view";
+import RoomView from "./views/room-view";
+import FurniturePreviewView from "./views/furniture-preview-view";
 
 export default class GameLevel {
     public app = new PIXI.Application();
@@ -18,15 +18,14 @@ export default class GameLevel {
     public room: Room | null = null;
 
     public furnitures: Furniture[] = [];
-    public furniturePlaced: number[] = [];
-    public furniturePlacement: Placement[] = [];
+    public furniturePlaced = new SortedList<number, Placement>(gridPlacementCompare);
 
     public furnitureSelected: number = -1;
     public furnitureSelectedRotation: Rotation = 0;
 
-    private roomRenderer: RoomRenderer = new RoomRenderer(this.camera, this.tileWidth, this.tileHeight);
-    private furnituresRenderer: FurnituresRenderer = new FurnituresRenderer(this.camera, this.tileWidth, this.tileHeight);
-    private previewRenderer: FurniturePreviewRenderer = new FurniturePreviewRenderer(this.camera, this.tileWidth, this.tileHeight);
+    public roomView: RoomView | null = null;
+    public furnitureView: FurnitureView[] = [];
+    public furnitureSelectedView: FurniturePreviewView | null = null;
 
     private lastPointerPosition = ZERO_VECTOR();
     private pointerAnchor = ZERO_VECTOR();
@@ -45,15 +44,20 @@ export default class GameLevel {
     public async start(data: GameLevelData) {
       await PIXI.Assets.load(data.assets);
 
-      this.room = data.room;
-      this.furnitures = data.furnitures;
-
       this.grid = new Grid(
-        Math.max(...this.room.cells.map(c => c.x)) + 1,
-        Math.max(...this.room.cells.map(c => c.y)) + 1
+        Math.max(...data.room.cells.map(c => c.x)) + 1,
+        Math.max(...data.room.cells.map(c => c.y)) + 1
       );
 
+      this.updateViewPort();
+
+      this.room = data.room;
       this.placeRoom(this.room);
+      this.roomView = new RoomView(this.room, this.camera, this.tileWidth, this.tileHeight);
+
+      this.furnitures = data.furnitures;
+      this.furnitures.forEach((model, index) => this.furnitureView.push(new FurnitureView(model, this.camera, this.tileWidth, this.tileHeight, () => this.pickUpFurniture(index))));
+      this.furnitureSelectedView = new FurniturePreviewView(this.camera, this.tileWidth, this.tileHeight);
 
       this.app.stage.eventMode = 'static';
       this.app.stage.hitArea = this.app.screen;
@@ -69,7 +73,7 @@ export default class GameLevel {
           const y = this.lastPointerPosition.y - this.pointerAnchor.y;
 
           const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
-          const placement: Placement = { position: gridPos, rotation: this.furnitureSelectedRotation };
+          const placement = new Placement(gridPos, this.furnitureSelectedRotation);
           const isValid = this.isPlacementValid(this.furnitureSelected, placement);
 
           if (isValid) {          
@@ -79,7 +83,6 @@ export default class GameLevel {
         }
       });
 
-      this.updateViewPort();
       this.app.ticker.add(() => this.update());
       this.app.start();
     }
@@ -87,19 +90,27 @@ export default class GameLevel {
     public update() {
       this.app.stage.removeChildren();
 
-      this.roomRenderer.render(this.app.stage, this.room);
-      this.furnituresRenderer.render(this.app.stage, this.furnitures, this.furniturePlaced, this.furniturePlacement, (id) => {
-        if (this.furnitureSelected < 0) this.pickUpFurniture(id);
+      this.roomView?.update();
+      this.roomView?.draw(this.app.stage);
+
+      this.furniturePlaced.getAll().forEach((entry) => {
+        this.furnitureView[entry.key].update(entry.value);
+        this.furnitureView[entry.key].draw(this.app.stage);
       });
-      
+
       if (this.furnitureSelected >= 0) {
         const x = this.lastPointerPosition.x - this.pointerAnchor.x;
         const y = this.lastPointerPosition.y - this.pointerAnchor.y;
 
         const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
-        const placement: Placement = { position: gridPos, rotation: this.furnitureSelectedRotation };
+        const placement = new Placement(gridPos, this.furnitureSelectedRotation);
         const isValid = this.isPlacementValid(this.furnitureSelected, placement);
-        this.previewRenderer.render(this.app.stage, this.furnitures[this.furnitureSelected], placement, isValid);
+
+        const id = this.furnitureSelected;
+        this.furnitureSelectedView!.update(this.furnitures[id], this.furnitureView[id], placement, isValid);
+        this.furnitureSelectedView!.draw(this.app.stage);
+      } else {
+        this.furnitureSelectedView!.furnitureView = null;
       }
     }
 
@@ -115,8 +126,6 @@ export default class GameLevel {
     }
 
     public placeFurniture(index: number, position: Vector2, rotation: Rotation): void {
-        //assert(!this.furniturePlaced.includes(index));
-
         const furniture = this.furnitures[index];
 
         const footprint = getFootprint(furniture, position, rotation);
@@ -128,16 +137,14 @@ export default class GameLevel {
         this.grid.place(index, accessibilityCells);
         this.grid.addFlag(GridCellState.FurnitureAccessibilityCell, accessibilityCells);
 
-        this.furniturePlaced.push(index);
-        this.furniturePlacement.push({ position, rotation });
+        this.furniturePlaced.add(index, new Placement(position, rotation));
     }
 
     public removeFurniture(index: number) {
-        const toRemove = this.furniturePlaced.findIndex(item => item == index);
-        //assert(toRemove >= 0);
-
         const furniture = this.furnitures[index];
-        const placement = this.furniturePlacement[toRemove];
+        const placement = this.furniturePlaced.getValue(index);
+
+        if (!placement) return;
 
         const footprint = getFootprint(furniture, placement.position, placement.rotation);
         const accessibilityCells = getAccessibilityCells(furniture, placement.position, placement.rotation);
@@ -148,8 +155,7 @@ export default class GameLevel {
         this.grid.remove(index, accessibilityCells);
         this.grid.removeFlag(GridCellState.FurnitureAccessibilityCell, accessibilityCells);
 
-        this.furniturePlaced.splice(toRemove, 1);
-        this.furniturePlacement.splice(toRemove, 1);
+        this.furniturePlaced.remove(index);
     }
 
     public updateViewPort() {
@@ -158,6 +164,8 @@ export default class GameLevel {
         const parent = this.app.canvas.parentElement;
         const canvasWidth = parent.clientWidth;
         const canvasHeight = parent.clientHeight;
+
+        console.log(canvasWidth, canvasHeight);
 
         // 1. Resize renderer to match current canvas element size
         this.app.renderer.resize(canvasWidth, canvasHeight);
@@ -194,22 +202,26 @@ export default class GameLevel {
     }
 
     public pickUpFurniture(index: number) {
-        const toRemove = this.furniturePlaced.findIndex(item => item == index);
-        if (toRemove < 0) {
+        if (this.furnitureSelected >= 0) {
           return;
         }
 
-        const viewPos = isoGridToView(this.furniturePlacement[toRemove].position, this.camera, this.tileWidth.value, this.tileHeight.value);
+        const palcement = this.furniturePlaced.getValue(index);
+        if (!palcement) {
+          return;
+        }
+
+        const viewPos = isoGridToView(palcement.position, this.camera, this.tileWidth.value, this.tileHeight.value);
         this.pointerAnchor.x = this.lastPointerPosition.x - viewPos.x;
         this.pointerAnchor.y = this.lastPointerPosition.y - viewPos.y;
 
-        this.furnitureSelectedRotation = this.furniturePlacement[toRemove].rotation;
+        this.furnitureSelectedRotation = palcement.rotation;
         this.removeFurniture(index);
         this.furnitureSelected = index;
     }
 
     public select(index: number) {
-      if (this.furniturePlaced.includes(index)) {
+      if (this.furniturePlaced.hasKey(index)) {
         this.pickUpFurniture(index);
       } else {
         this.furnitureSelected = index;
