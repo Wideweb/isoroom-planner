@@ -7,6 +7,7 @@ import FurnitureView from "./views/furniture-view";
 import RoomView from "./views/room-view";
 import FurniturePreviewView from "./views/furniture-preview-view";
 import { StageActionCameraShake } from "./actions/camera-shake.action";
+import { ViewActionFade } from "./actions/view-fade.action";
 
 export default class GameLevel {
     public app = new PIXI.Application();
@@ -63,7 +64,11 @@ export default class GameLevel {
       this.roomView = new RoomView(this.room, this.tileWidth, this.tileHeight);
 
       this.furnitures = data.furnitures;
-      this.furnitures.forEach((model, index) => this.furnitureView.push(new FurnitureView(model, this.tileWidth, this.tileHeight, () => this.pickUpFurniture(index))));
+      this.furnitures.forEach((model, index) => {
+        const view = new FurnitureView(model, this.tileWidth, this.tileHeight);
+        this.furnitureView.push(view);
+        view.select$.subscribe(() => this.pickUpFurniture(index));
+      });
       this.furnitureSelectedView = new FurniturePreviewView(this.tileWidth, this.tileHeight);
 
       this.app.stage.eventMode = 'static';
@@ -92,6 +97,9 @@ export default class GameLevel {
 
       this.app.ticker.add((ticker) => this.update(ticker.deltaMS));
       this.app.start();
+
+      await this.roomView.addAction(new ViewActionFade({ from: 0, to: 1, time: 2000 })).awaiter;
+      console.log('START!');
     }
 
     public update(deltaMS: number) {
@@ -101,11 +109,11 @@ export default class GameLevel {
       this.layer0.position.x = -this.camera.position.x;
       this.layer0.position.y = -this.camera.position.y;
 
-      this.roomView?.update();
+      this.roomView?.update(deltaMS);
       this.roomView?.draw(this.layer0);
 
       this.furniturePlaced.getAll().forEach((entry) => {
-        this.furnitureView[entry.key].update(entry.value);
+        this.furnitureView[entry.key].update2(deltaMS, entry.value);
         this.furnitureView[entry.key].draw(this.layer0);
       });
 
@@ -118,7 +126,7 @@ export default class GameLevel {
         const isValid = this.isPlacementValid(this.furnitureSelected, placement);
 
         const id = this.furnitureSelected;
-        this.furnitureSelectedView!.update(this.furnitures[id], this.furnitureView[id], placement, isValid);
+        this.furnitureSelectedView!.update2(deltaMS, this.furnitures[id], this.furnitureView[id], placement, isValid);
         this.furnitureSelectedView!.draw(this.layer0);
       } else {
         this.furnitureSelectedView!.furnitureView = null;

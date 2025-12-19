@@ -4,9 +4,9 @@ import * as PIXI from 'pixi.js';
 import FurnitureView from "./furniture-view";
 import { getAccessibilityCells, getFootprint } from "../furniture-placement.helper";
 import { createIsoQuadPath } from "./primitive.helper";
+import BaseView from "./base.view";
 
-export default class FurniturePreviewView {
-    public view = new PIXI.Container();
+export default class FurniturePreviewView extends BaseView {
     public furnitureView: FurnitureView | null = null;
     
     private prevTileWidth = -1;
@@ -17,9 +17,13 @@ export default class FurniturePreviewView {
     constructor(
         private tileWidth: Ref<number>,
         private tileHeight: Ref<number>
-    ) { }
+    ) { 
+        super();
+    }
 
-    update(furniture: Furniture, furnitureView: FurnitureView, placement: Placement, isValid: boolean) {
+    update2(deltaMs: number, furniture: Furniture, furnitureView: FurnitureView, placement: Placement, isValid: boolean) {
+        super.update(deltaMs);
+
         if (placement.equalTo(this.prevPlacement) &&
             this.prevTileWidth == this.tileWidth.value &&
             this.prevTileHeight == this.tileHeight.value &&
@@ -60,7 +64,7 @@ export default class FurniturePreviewView {
             this.view.addChild(quad);
         });
 
-        furnitureView.update(placement, 0.5, isValid ? 0xffffff : 0xf87171);
+        furnitureView.update2(deltaMs, placement, 0.5, isValid ? 0xffffff : 0xf87171);
         furnitureView.draw(this.view);
 
         this.prevTileWidth = this.tileWidth.value;
@@ -68,9 +72,5 @@ export default class FurniturePreviewView {
         placement.copyTo(this.prevPlacement);
         this.furnitureView = furnitureView;
         this.prevIsValid = isValid;
-    }
-
-    draw(container: PIXI.Container) {
-        container.addChild(this.view);
     }
 }

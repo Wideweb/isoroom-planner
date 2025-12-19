@@ -31,3 +31,8 @@ export const gridPlacementCompare = (a: Placement, b: Placement): number => {
     const bPos = b.position.y * 1000 + b.position.x;
     return aPos - bPos;
 }
+
+export function lerp(from: number, to: number, t: number, clamp: boolean = false): number {
+    const tt = clamp ? Math.min(1, Math.max(0, t)) : t;
+    return from + (to - from) * tt;
+}

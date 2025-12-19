@@ -1,6 +1,7 @@
 import { Furniture, Placement, Ref } from "../game.model";
 import { isoGridToWorld } from "../math.helper";
 import * as PIXI from 'pixi.js';
+import BaseView from "./base.view";
 
 // const halfw = spriteSrc.width * scale * 0.5;
 // const halfh = spriteSrc.height * scale * 0.5;
@@ -12,7 +13,7 @@ import * as PIXI from 'pixi.js';
 // ];
 // sprite.hitArea = new PIXI.Polygon(points);
 
-export default class FurnitureView {
+export default class FurnitureView extends BaseView {
     public views: PIXI.Sprite[] = [];
     
     private prevTileWidth = -1;
@@ -24,28 +25,28 @@ export default class FurnitureView {
     constructor(
         private model: Furniture,
         private tileWidth: Ref<number>,
-        private tileHeight: Ref<number>,
-        onSelect?: () => void,
+        private tileHeight: Ref<number>
     ) {
+        super();
+
         this.model.sprite.forEach(src => {
             const sprite = new PIXI.Sprite(PIXI.Assets.get(src.name));
             sprite.scale.x = Math.sign(src.width);
             sprite.scale.y = Math.sign(src.height);
             sprite.anchor.set(0.5, 0.5);
-            
-            if (onSelect) {
-                sprite.eventMode = 'static';
-                sprite.on('pointerdown', (event) => {
-                    event.stopPropagation();
-                    onSelect();
-                });
-            }
+            sprite.eventMode = 'static';
+            sprite.on('pointerdown', (event) => {
+                event.stopPropagation();
+                this.selectSubject.next(this);
+            });
 
             this.views.push(sprite);
         });
     }
 
-    update(placement: Placement, alpha = 1, tint = 0xffffff) {
+    update2(deltaMs: number, placement: Placement, alpha = 1, tint = 0xffffff) {
+        super.update(deltaMs);
+
         if (this.prevAlpha != alpha) {
             this.views.forEach(s => {s.alpha = alpha;});
             this.prevAlpha = alpha;
@@ -81,7 +82,9 @@ export default class FurnitureView {
         placement.copyTo(this.prevPlacement);
     }
 
-    draw(container: PIXI.Container) {
-        container.addChild(this.views[this.prevPlacement.rotation / 90]);
+    override draw(container: PIXI.Container) {
+        this.view.removeChild();
+        this.view.addChild(this.views[this.prevPlacement.rotation / 90]);
+        super.draw(container);
     }
 }

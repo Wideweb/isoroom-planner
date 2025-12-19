@@ -2,10 +2,9 @@ import { Ref, Room } from "../game.model";
 import { isoGridToWorld } from "../math.helper";
 import * as PIXI from 'pixi.js';
 import { createIsoQuadPath } from "./primitive.helper";
+import BaseView from "./base.view";
 
-export default class RoomView {
-    public view = new PIXI.Container();
-        
+export default class RoomView extends BaseView {
     private prevTileWidth = -1;
     private prevTileHeight = -1;
 
@@ -13,9 +12,13 @@ export default class RoomView {
         private model: Room,
         private tileWidth: Ref<number>,
         private tileHeight: Ref<number>
-    ) { }
+    ) {
+        super();
+    }
 
-    update() {
+    override update(deltaMs: number) {
+        super.update(deltaMs);
+        
         if (this.prevTileWidth == this.tileWidth.value &&
             this.prevTileHeight == this.tileHeight.value) {
             return;
@@ -51,9 +54,5 @@ export default class RoomView {
 
         this.prevTileWidth = this.tileWidth.value;
         this.prevTileHeight = this.tileHeight.value;
-    }
-
-    draw(container: PIXI.Container) {
-        container.addChild(this.view);
     }
 }
