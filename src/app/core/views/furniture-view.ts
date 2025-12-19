@@ -1,5 +1,5 @@
-import { Camera, Furniture, Placement, Ref, ZERO_VECTOR } from "../game.model";
-import { isoGridToView } from "../math.helper";
+import { Furniture, Placement, Ref } from "../game.model";
+import { isoGridToWorld } from "../math.helper";
 import * as PIXI from 'pixi.js';
 
 // const halfw = spriteSrc.width * scale * 0.5;
@@ -18,13 +18,11 @@ export default class FurnitureView {
     private prevTileWidth = -1;
     private prevTileHeight = -1;
     private prevPlacement = new Placement();
-    private prevCameraPos = ZERO_VECTOR();
     private prevTint = 0xffffff;
     private prevAlpha = 1;
 
     constructor(
         private model: Furniture,
-        private camera: Camera,
         private tileWidth: Ref<number>,
         private tileHeight: Ref<number>,
         onSelect?: () => void,
@@ -61,9 +59,7 @@ export default class FurnitureView {
 
         if (placement.equalTo(this.prevPlacement) &&
             this.prevTileWidth == this.tileWidth.value &&
-            this.prevTileHeight == this.tileHeight.value &&
-            this.prevCameraPos.x == this.camera.position.x &&
-            this.prevCameraPos.y == this.camera.position.y) {
+            this.prevTileHeight == this.tileHeight.value) {
             return;
         }
 
@@ -75,16 +71,14 @@ export default class FurnitureView {
             const src = this.model.sprite[index];
             sprite.setSize(Math.abs(src.width) * scale, Math.abs(src.height) * scale);
 
-            const viewPos = isoGridToView(placement.position, this.camera, this.tileWidth.value, this.tileHeight.value);
+            const worldPos = isoGridToWorld(placement.position, this.tileWidth.value, this.tileHeight.value);
 
-            sprite.position.set(viewPos.x - src.originX * scale, viewPos.y - src.originY * scale);
+            sprite.position.set(worldPos.x - src.originX * scale, worldPos.y - src.originY * scale);
         });
 
         this.prevTileWidth = this.tileWidth.value;
         this.prevTileHeight = this.tileHeight.value;
         placement.copyTo(this.prevPlacement);
-        this.prevCameraPos.x = this.camera.position.x;
-        this.prevCameraPos.y = this.camera.position.y;
     }
 
     draw(container: PIXI.Container) {

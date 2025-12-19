@@ -1,4 +1,4 @@
-import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, ZERO_VECTOR, SortedList } from "./game.model";
+import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, SortedList } from "./game.model";
 import { Grid } from "./grid";
 import { getAccessibilityCells, getFootprint, isPlacementValid } from "./furniture-placement.helper";
 import * as PIXI from 'pixi.js';
@@ -6,9 +6,12 @@ import { gridPlacementCompare, isoGridToView, viewToIsoGrid } from "./math.helpe
 import FurnitureView from "./views/furniture-view";
 import RoomView from "./views/room-view";
 import FurniturePreviewView from "./views/furniture-preview-view";
+import { StageActionCameraShake } from "./actions/camera-shake.action";
 
 export default class GameLevel {
     public app = new PIXI.Application();
+    public layer0 = new PIXI.Container();
+
     public camera = new Camera();
     
     public grid!: Grid;
@@ -27,8 +30,10 @@ export default class GameLevel {
     public furnitureView: FurnitureView[] = [];
     public furnitureSelectedView: FurniturePreviewView | null = null;
 
-    private lastPointerPosition = ZERO_VECTOR();
-    private pointerAnchor = ZERO_VECTOR();
+    private lastPointerPosition = new Vector2()
+    private pointerAnchor = new Vector2();
+
+    private cameraShakeAction = new StageActionCameraShake({strength: new Vector2(5, 5), time: 250});
 
     public async init(canvas: HTMLCanvasElement) {
       await this.app.init({
@@ -39,6 +44,8 @@ export default class GameLevel {
           autoDensity: true,
           autoStart: false
       });
+
+      this.app.stage.addChild(this.layer0);
     }
 
     public async start(data: GameLevelData) {
@@ -53,11 +60,11 @@ export default class GameLevel {
 
       this.room = data.room;
       this.placeRoom(this.room);
-      this.roomView = new RoomView(this.room, this.camera, this.tileWidth, this.tileHeight);
+      this.roomView = new RoomView(this.room, this.tileWidth, this.tileHeight);
 
       this.furnitures = data.furnitures;
-      this.furnitures.forEach((model, index) => this.furnitureView.push(new FurnitureView(model, this.camera, this.tileWidth, this.tileHeight, () => this.pickUpFurniture(index))));
-      this.furnitureSelectedView = new FurniturePreviewView(this.camera, this.tileWidth, this.tileHeight);
+      this.furnitures.forEach((model, index) => this.furnitureView.push(new FurnitureView(model, this.tileWidth, this.tileHeight, () => this.pickUpFurniture(index))));
+      this.furnitureSelectedView = new FurniturePreviewView(this.tileWidth, this.tileHeight);
 
       this.app.stage.eventMode = 'static';
       this.app.stage.hitArea = this.app.screen;
@@ -83,19 +90,23 @@ export default class GameLevel {
         }
       });
 
-      this.app.ticker.add(() => this.update());
+      this.app.ticker.add((ticker) => this.update(ticker.deltaMS));
       this.app.start();
     }
 
-    public update() {
-      this.app.stage.removeChildren();
+    public update(deltaMS: number) {
+      this.cameraShakeAction.update(deltaMS, { camera: this.camera });
+
+      this.layer0.removeChildren();
+      this.layer0.position.x = -this.camera.position.x;
+      this.layer0.position.y = -this.camera.position.y;
 
       this.roomView?.update();
-      this.roomView?.draw(this.app.stage);
+      this.roomView?.draw(this.layer0);
 
       this.furniturePlaced.getAll().forEach((entry) => {
         this.furnitureView[entry.key].update(entry.value);
-        this.furnitureView[entry.key].draw(this.app.stage);
+        this.furnitureView[entry.key].draw(this.layer0);
       });
 
       if (this.furnitureSelected >= 0) {
@@ -108,7 +119,7 @@ export default class GameLevel {
 
         const id = this.furnitureSelected;
         this.furnitureSelectedView!.update(this.furnitures[id], this.furnitureView[id], placement, isValid);
-        this.furnitureSelectedView!.draw(this.app.stage);
+        this.furnitureSelectedView!.draw(this.layer0);
       } else {
         this.furnitureSelectedView!.furnitureView = null;
       }
@@ -138,6 +149,7 @@ export default class GameLevel {
         this.grid.addFlag(GridCellState.FurnitureAccessibilityCell, accessibilityCells);
 
         this.furniturePlaced.add(index, new Placement(position, rotation));
+        this.cameraShakeAction.reset();
     }
 
     public removeFurniture(index: number) {
@@ -165,16 +177,14 @@ export default class GameLevel {
         const canvasWidth = parent.clientWidth;
         const canvasHeight = parent.clientHeight;
 
-        console.log(canvasWidth, canvasHeight);
-
         // 1. Resize renderer to match current canvas element size
         this.app.renderer.resize(canvasWidth, canvasHeight);
 
         // 2. Calculate optimal tile size
         const isoUnits = this.grid.width + this.grid.height;
 
-        const paddingX = 100; // horizontal padding
-        const paddingY = 100; // vertical padding
+        const paddingX = 0; // horizontal padding
+        const paddingY = 0; // vertical padding
 
         const availableWidth = canvasWidth - paddingX;
         const availableHeight = canvasHeight - paddingY;
@@ -182,7 +192,7 @@ export default class GameLevel {
         const tileWidthFromWidth = (availableWidth * 2) / isoUnits;
         const tileWidthFromHeight = (availableHeight * 2) / isoUnits;
 
-        this.tileWidth.value = Math.min(tileWidthFromWidth, tileWidthFromHeight * 2.0);
+        this.tileWidth.value = Math.min(tileWidthFromWidth, tileWidthFromHeight * 2.0, 128);
         this.tileWidth.value = Math.max(4, this.tileWidth.value);
 
         this.tileHeight.value = this.tileWidth.value / 2;
@@ -195,7 +205,7 @@ export default class GameLevel {
         const screenCenterY = canvasHeight / 2;
 
         const gridCenterScreenOffsetX = (gridCenterX - gridCenterY) * (this.tileWidth.value / 2);
-        const gridCenterScreenOffsetY = (gridCenterX + gridCenterY) * (this.tileHeight.value / 2);
+        const gridCenterScreenOffsetY = (gridCenterX + gridCenterY - 2) * (this.tileHeight.value / 2);
 
         this.camera.position.x = -(screenCenterX - gridCenterScreenOffsetX);
         this.camera.position.y = -(screenCenterY - gridCenterScreenOffsetY);
@@ -227,7 +237,7 @@ export default class GameLevel {
         this.furnitureSelected = index;
         this.furnitureSelectedRotation = 0;
       }
-      this.pointerAnchor = ZERO_VECTOR();
+      this.pointerAnchor = new Vector2();
     }
 
     public rotateSelected() {

@@ -14,13 +14,8 @@ export enum GridCellState {
     All = ~(~0 << 4)
 }
 
-export interface Vector2 {
-  x: number;
-  y: number;
-}
-
-export const ZERO_VECTOR = (): Vector2 => {
-  return {x: 0, y: 0};
+export class Vector2 {
+  constructor(public x = 0, public y = 0) {}
 }
 
 export interface SpriteSrc {
@@ -45,7 +40,7 @@ export interface Room {
 }
 
 export class Placement {
-  constructor(public position: Vector2 = ZERO_VECTOR(), public rotation: Rotation = 0) {}
+  constructor(public position = new Vector2(), public rotation: Rotation = 0) {}
 
   equalTo(other: Placement | null) {
     if (!other) return false;
