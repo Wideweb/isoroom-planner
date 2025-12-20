@@ -52,10 +52,10 @@ export default class FurnitureView extends BaseView {
             this.prevAlpha = alpha;
         }
         
-        this.prevTint = tint;
         if (this.prevTint != tint) {
             this.views.forEach(s => {s.tint = tint;});
             this.prevTint = tint;
+            console.log('set furniture tint');
         }
 
         if (placement.equalTo(this.prevPlacement) &&
@@ -83,8 +83,8 @@ export default class FurnitureView extends BaseView {
     }
 
     override draw(container: PIXI.Container) {
-        this.view.removeChild();
-        this.view.addChild(this.views[this.prevPlacement.rotation / 90]);
+        this.container.removeChildren();
+        this.container.addChild(this.views[this.prevPlacement.rotation / 90]);
         super.draw(container);
     }
 }

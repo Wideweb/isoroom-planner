@@ -26,7 +26,7 @@ export default class RoomView extends BaseView {
 
         console.log('update room');
 
-        this.view.removeChildren();
+        this.container.removeChildren();
 
         this.model.cells.forEach(cellPos => {
             const worldPos = isoGridToWorld(cellPos, this.tileWidth.value, this.tileHeight.value);
@@ -37,7 +37,7 @@ export default class RoomView extends BaseView {
             quad.poly(quadPath).stroke({ color: 0x4b5563, width: 1.0 });
             quad.position.set(worldPos.x, worldPos.y);
 
-            this.view.addChild(quad);
+            this.container.addChild(quad);
         });
 
         if (this.model.entrance) {
@@ -49,7 +49,7 @@ export default class RoomView extends BaseView {
             quad.poly(quadPath).stroke({ color: 0x34d399, width: 1.0 });
             quad.position.set(worldPos.x, worldPos.y);
 
-            this.view.addChild(quad);
+            this.container.addChild(quad);
         }
 
         this.prevTileWidth = this.tileWidth.value;

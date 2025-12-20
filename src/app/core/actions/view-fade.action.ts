@@ -1,6 +1,6 @@
 import { lerp } from "../math.helper";
+import BaseView from "../views/base.view";
 import { ViewAction } from "./base.action";
-import * as PIXI from 'pixi.js';
 
 export interface StageActionViewAlphaModel {
     time: number;
@@ -21,7 +21,7 @@ export class ViewActionFade extends ViewAction {
       this.to = model.to;
     }
 
-    update(deltaMS: number, view: PIXI.Container): void {
+    update(deltaMS: number, view: BaseView): void {
       if (this.finished) {
           return;
       }
@@ -40,6 +40,6 @@ export class ViewActionFade extends ViewAction {
           progress = 1.0;
       }
 
-      view.alpha = lerp(this.from, this.to, progress);
+      view.container.alpha = lerp(this.from, this.to, progress);
     }
 }

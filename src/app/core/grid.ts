@@ -21,6 +21,8 @@ export class Grid {
 
     public place(obj: number, cells: Vector2[]) {
         cells.forEach(cell => {
+            if (!this.inBounds(cell)) return;
+
             let gridCell = this.cells[cell.y][cell.x];
             gridCell.refs.push(obj);
         });
@@ -28,6 +30,8 @@ export class Grid {
 
     public remove(obj: number, cells: Vector2[]) {
         cells.forEach(cell => {
+            if (!this.inBounds(cell)) return;
+
             let gridCell = this.cells[cell.y][cell.x];
             const index = gridCell.refs.indexOf(obj);
             if (index >= 0) {
@@ -38,6 +42,8 @@ export class Grid {
 
     public addFlag(flag: number, cells: Vector2[]) {
         cells.forEach(cell => {
+            if (!this.inBounds(cell)) return;
+
             let gridCell = this.cells[cell.y][cell.x];
             gridCell.flags |= flag;
         });
@@ -45,8 +51,14 @@ export class Grid {
 
     public removeFlag(flag: number, cells: Vector2[]) {
         cells.forEach(cell => {
+            if (!this.inBounds(cell)) return;
+            
             let gridCell = this.cells[cell.y][cell.x];
             gridCell.flags &= ~flag;
         });
+    }
+
+    private inBounds(cell: Vector2) {
+        return cell.x >= 0 && cell.x < this.width && cell.y >= 0 && cell.y < this.height;
     }
 }

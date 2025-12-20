@@ -3,7 +3,7 @@ import { ViewAction } from "../actions/base.action";
 import { Observable, Subject } from 'rxjs';
 
 export default abstract class BaseView {
-    public view = new PIXI.Container();
+    public container = new PIXI.Container();
 
     protected selectSubject = new Subject<BaseView>();
     public readonly select$: Observable<BaseView> = this.selectSubject.asObservable();
@@ -17,10 +17,10 @@ export default abstract class BaseView {
     }
 
     update(deltaMs: number) {
-        this.actions.forEach(a => a.update(deltaMs, this.view));
+        this.actions.forEach(a => a.update(deltaMs, this));
     }
 
     draw(container: PIXI.Container) {
-        container.addChild(this.view);
+        container.addChild(this.container);
     }
 }

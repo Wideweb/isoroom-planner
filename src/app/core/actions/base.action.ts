@@ -1,5 +1,5 @@
 import { Camera } from "../game.model";
-import * as PIXI from 'pixi.js';
+import BaseView from "../views/base.view";
 
 export enum StageActionType {
     RotateCamera,
@@ -22,14 +22,23 @@ export abstract class ViewAction {
     protected elapsedTimeMS = 0;
     protected woken = false;
     public    finished = true;
+    public    active = true;
 
     protected _promise = this.createAwaiter();
     protected _resolve?: () => void;
 
-    abstract update(delta: number, view: PIXI.Container): void;
+    abstract update(delta: number, view: BaseView): void;
 
     get awaiter(): Promise<void> {
       return this._promise;
+    }
+
+    public start() {
+        this.active = true;
+    }
+
+    public stop() {
+        this.active = false;
     }
 
     public reset() {

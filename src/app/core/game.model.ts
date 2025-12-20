@@ -5,6 +5,14 @@ export class Ref<T> {
   constructor(public value: T) {} 
 }
 
+export enum GameLevelState {
+    None = 0,
+    Appearing = 1,
+    FurniturePlacing = 2,
+    Validating = 3,
+    ShowResult = 4,
+}
+
 export enum GridCellState {
     None = 0,
     Room = 1 << 0,
@@ -144,5 +152,10 @@ export class SortedList<K, V> {
 
     getAll(): { key: K; value: V }[] {
         return this.items;
+    }
+    
+    clear() {
+      this.items.splice(0, this.items.length);
+      this.indexByKey.clear();
     }
 }

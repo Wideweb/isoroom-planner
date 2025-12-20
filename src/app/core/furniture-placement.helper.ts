@@ -1,6 +1,23 @@
 import { GridCellState, Vector2, Rotation, Furniture } from "./game.model";
 import { Grid } from "./grid";
 
+export const isPlacementPossible = (grid: Grid, item: Furniture, position: Vector2, rotation: Rotation): boolean => {
+    const footprint = getFootprint(item, position, rotation);
+
+    for (const cell of footprint) {
+        if (cell.x < 0 || cell.x >= grid.width || cell.y < 0 || cell.y >= grid.height) {
+            return false;
+        }
+      
+        const gridCell = grid.cells[cell.y][cell.x];
+        if (!gridCell || !(gridCell.flags & (GridCellState.Room)) || (gridCell.flags & GridCellState.Furniture)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export const isPlacementValid = (grid: Grid, item: Furniture, position: Vector2, rotation: Rotation): boolean => {
     const footprint = getFootprint(item, position, rotation);
     const accessibilityCells = getAccessibilityCells(item, position, rotation);
@@ -34,7 +51,7 @@ export const isPlacementValid = (grid: Grid, item: Furniture, position: Vector2,
     }
 
     return true;
-  }
+}
 
 export const placeFurniture = (grid: Grid, item: Furniture, position: Vector2, rotation: Rotation): void => {
     const footprint = getFootprint(item, position, rotation);

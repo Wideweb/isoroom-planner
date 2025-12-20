@@ -15,7 +15,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   @ViewChild('pixiCanvas', { static: true }) pixiCanvas!: ElementRef<HTMLCanvasElement>;
   private resizeObserver!: ResizeObserver;
 
-  private game = new GameLevel();
+  public game = new GameLevel();
 
   constructor() { }
 
@@ -24,7 +24,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   }
 
   @HostListener('window:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
+  async handleKeyboardEvent(event: KeyboardEvent) {
     if (event.key.toLowerCase() === 'r') {
       this.game.rotateSelected();
     }
@@ -44,6 +44,14 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   selectFurniture(index: number) {
     this.game.select(index);
+  }
+
+  async submit() {
+    await this.game.submit();
+  }
+
+  async tryAgain() {
+    await this.game.restart();
   }
 
   ngOnDestroy() {

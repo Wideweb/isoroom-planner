@@ -1,7 +1,7 @@
 import { Furniture, Placement, Ref } from "../game.model";
 import { isoGridToWorld } from "../math.helper";
 import * as PIXI from 'pixi.js';
-import FurnitureView from "./furniture-view";
+import FurnitureView from "./furniture.view";
 import { getAccessibilityCells, getFootprint } from "../furniture-placement.helper";
 import { createIsoQuadPath } from "./primitive.helper";
 import BaseView from "./base.view";
@@ -34,7 +34,7 @@ export default class FurniturePreviewView extends BaseView {
 
         console.log('update furniture preview');
 
-        this.view.removeChildren();
+        this.container.removeChildren();
 
         const footprint = getFootprint(furniture, placement.position, placement.rotation);
         const accessibilityCells = getAccessibilityCells(furniture, placement.position, placement.rotation);
@@ -49,7 +49,7 @@ export default class FurniturePreviewView extends BaseView {
 
             quad.position.set(worldPos.x, worldPos.y);
 
-            this.view.addChild(quad);
+            this.container.addChild(quad);
         });
 
         accessibilityCells.forEach(cellPos => {
@@ -61,11 +61,11 @@ export default class FurniturePreviewView extends BaseView {
 
             quad.position.set(worldPos.x, worldPos.y);
 
-            this.view.addChild(quad);
+            this.container.addChild(quad);
         });
 
         furnitureView.update2(deltaMs, placement, 0.5, isValid ? 0xffffff : 0xf87171);
-        furnitureView.draw(this.view);
+        furnitureView.draw(this.container);
 
         this.prevTileWidth = this.tileWidth.value;
         this.prevTileHeight = this.tileHeight.value;
