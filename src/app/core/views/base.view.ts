@@ -5,8 +5,8 @@ import { Observable, Subject } from 'rxjs';
 export default abstract class BaseView {
     public container = new PIXI.Container();
 
-    protected selectSubject = new Subject<BaseView>();
-    public readonly select$: Observable<BaseView> = this.selectSubject.asObservable();
+    protected selectSubject = new Subject<{view: BaseView, event:  PIXI.FederatedPointerEvent}>();
+    public readonly select$: Observable<{view: BaseView, event:  PIXI.FederatedPointerEvent}> = this.selectSubject.asObservable();
         
     protected actions: ViewAction[] = [];
 

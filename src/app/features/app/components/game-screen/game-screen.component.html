@@ -1,0 +1,5 @@
+<div class="screen">
+    <ng-container *ngIf="loaded$ | async">
+        <game-level [data]="(levelData$ | async)!"></game-level>
+    </ng-container>
+</div>

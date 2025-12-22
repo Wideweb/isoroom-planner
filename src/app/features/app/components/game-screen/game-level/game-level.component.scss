@@ -1,0 +1,105 @@
+@import 'common.scss';
+
+:host {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.game-board {
+    flex: 1;
+
+    canvas {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+    }
+}
+
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding-top: env(safe-area-inset-top, 1rem);
+}
+
+.header__tools {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.toolbar {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: $panel-glass;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid $tile-border;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.toolbar__scroller {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 1rem 1.25rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.toolbar__scroller::-webkit-scrollbar { display: none; }
+
+.item-card {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    width: 90px;
+    height: 100px;
+    padding: 0.5rem;
+    border-radius: $radius-lg;
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid $tile-border;
+    cursor: pointer;
+    text-align: center;
+    transition: transform $dur-medium $easing-soft, box-shadow $dur-medium $easing-soft;
+
+    user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+}
+
+.item-card:hover { transform: translateY(-4px); box-shadow: $shadow-strong; }
+.item-card:active { transform: translateY(-2px) scale(0.98); }
+.item-card.is-selected { box-shadow: 0 0 0 2px $accent, $shadow-strong; transform: translateY(-4px); }
+.item-card[disabled] { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.item-card__thumbnail {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-md;
+    overflow: hidden;
+    background-color: $tile-base;
+}
+
+.item-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-card__title { font-size: 0.8rem; font-weight: 600; margin: 0; line-height: 1.2; }
+.item-card__desc { font-size: 0.7rem; color: $text-secondary; margin: 0; }

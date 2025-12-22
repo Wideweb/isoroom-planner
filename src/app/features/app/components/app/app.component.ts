@@ -3,6 +3,8 @@ import { BehaviorSubject, firstValueFrom, shareReplay, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { GameLevelData } from 'src/app/core/game.model';
 import GameAssets from 'src/app/core/game-assets';
+import { SpinnerService } from '../../services/spinner.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +19,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private gameAssets = new GameAssets();
   
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    public spinner: SpinnerService,
+    private router: Router,
+  ) { 
+    this.router.navigateByUrl('/');
+  }
 
   async ngOnInit() {   }
 

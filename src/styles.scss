@@ -1,5 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-
 @import 'common.scss';
 
 @font-face {
@@ -26,30 +25,222 @@
     src: url("/assets/Consolas.ttf") format("truetype") ;
 }
 
+/* 
+* =============================================
+* KEYFRAMES FOR ANIMATIONS
+* =============================================
+*/
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 12px 2px var(--tile-accessible), inset 0 0 8px var(--tile-accessible); transform: scale(1.0); }
+    50% { box-shadow: 0 0 20px 5px var(--tile-accessible), inset 0 0 12px var(--tile-accessible); transform: scale(1.02); }
+}
+
+@keyframes bounce-in {
+    0% { opacity: 0; transform: scale(0.8); }
+    70% { opacity: 1; transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
+/* 
+* =============================================
+* GLOBAL STYLES & RESETS
+* =============================================
+*/
+*, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+*::-webkit-scrollbar-track {
+    background: #1c1c1e;       /* цвет дорожки */
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #ff6600; /* цвет ползунка */
+    border-radius: 5px;        /* скругление */
+    border: 2px solid #1c1c1e; /* отступ внутри */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #{darken(#ff6600, 10%)};
+}
+
+/* цвет ползунка и трека */
+* {
+    scrollbar-color: #ff6600 #1c1c1e;
+    scrollbar-width: thin; /* auto | thin | none */
+}
+
 html {
     min-width: 100%;
     height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    font-size: 16px;
-    color: #333;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: $white;
 }
 
-body,
-#index {
+body {
     min-width: 100%;
     height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    font-size: toRem(14);
-    color: #333;
-    box-sizing: border-box;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(160deg, $bg-gradient-start, $bg-gradient-end);
+    color: $text-primary;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overscroll-behavior: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    flex-shrink: 0;
+    animation: slide-up $dur-slow $easing-soft;
+}
+
+.header--with-back-btn {
+    justify-content: flex-start;
+    gap: 1rem;
+}
+
+.header__info {
+    text-align: left;
+}
+
+.header__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.header__progress {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    margin: 0.25rem 0 0;
+}
+
+.button, .button-link {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: $radius-md;
+    background-color: $accent;
+    color: $white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: $shadow-soft;
+    transition: transform $dur-fast $easing-soft, background-color $dur-fast $easing-soft, box-shadow $dur-medium $easing-soft;
+    -webkit-user-select: none;
+    user-select: none;
+    text-align: center;
+}
+
+.button:hover, .button-link:hover {
+    background-color: $accent-hover;
+    transform: translateY(-2px);
+    box-shadow: $shadow-strong;
+}
+
+.button:active, .button-link:active {
+    transform: translateY(0px) scale(0.98);
+    box-shadow: none;
+}
+
+.button:focus-visible, .button-link:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
+}
+
+.button:disabled, .button-link[disabled] {
+    background-color: $text-secondary;
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.button--secondary {
+    background-color: $panel-glass;
+    color: $text-primary;
+    border: 1px solid $tile-border;
+}
+.button--secondary:hover {
+    background-color: $accent-weak;
+}
+
+.button--large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: $radius-lg;
+}
+
+.button__icon {
+    width: 24px;
+    height: 24px;
+}
+
+.screen {
+    width: 100%;
+    height: 100vh;
+    animation: fade-in $dur-medium $easing-soft;
+}
+
+.menu__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 320px;
+}
+
+.cdk-overlay-container {
+    inset: 0;
+    background-color: rgba(0,0,0,0.5);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.mat-mdc-dialog-container {
+    background-color: $panel-glass;
+    border-radius: $radius-lg;
+    padding: 2rem;
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    box-shadow: $shadow-strong;
+    animation: bounce-in $dur-slow $easing-soft;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+    background: none !important;
+    box-shadow: none !important;
+    border-radius: none !important;
 }

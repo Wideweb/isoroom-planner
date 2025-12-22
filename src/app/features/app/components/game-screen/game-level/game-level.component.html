@@ -1,0 +1,71 @@
+<div class="app-layout">
+    <header class="header header--with-back-btn">
+        <a data-target="main-menu" class="button-link button--secondary" routerLink="/levels">
+            <svg class="button__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="header__info">
+            <h1 class="header__title">Level 2</h1>
+            <p class="header__progress">Items: {{ game.furniturePlaced.getAll().length }}/{{ game.furnitures.length }}</p>
+        </div>
+        <!-- For demo: these buttons link to success/failure modals -->
+        <div class="header__tools">
+            <a data-target="failure-screen" class="button-link button--secondary" (click)="tryAgain()">Restart</a>
+            <a data-target="success-screen" class="button-link" (click)="game.canSubmit() && submit()" [attr.disabled]="(game.canSubmit$ | async) ? null : ''">Submit</a>
+        </div>
+    </header>
+
+
+    <div class="game-board">
+        <canvas #pixiCanvas></canvas>
+    </div>
+
+    <nav class="toolbar" aria-label="Панель предметов">
+        <div class="toolbar__scroller">
+            <ng-container *ngFor="let id of game.furnituresRemain; let i = index">
+
+                <div class="item-card" [ngClass]="{'is-selected': id == game.furnitureSelected}" role="button" aria-pressed="true" (pointerdown)="selectFurniture(id, $event)">
+                    <div class="item-card__thumbnail"><img src="https://picsum.photos/seed/chair/80/80" [alt]="game.furnitures[id].name" class="item-card__image"></div>
+                    <h2 class="item-card__title">{{ game.furnitures[id].name }}</h2><p class="item-card__desc">1x1</p>
+                </div>
+            
+            </ng-container>
+
+            <!-- <div class="item-card is-selected" role="button" aria-pressed="true" tabindex="0">
+                <div class="item-card__thumbnail"><img src="https://picsum.photos/seed/chair/80/80" alt="Стул" class="item-card__image"></div>
+                <h2 class="item-card__title">Стул</h2><p class="item-card__desc">1x1</p>
+            </div>
+            <div class="item-card" role="button" aria-pressed="false" tabindex="0">
+                    <div class="item-card__thumbnail"><img src="https://picsum.photos/seed/table/80/80" alt="Стол" class="item-card__image"></div>
+                <h2 class="item-card__title">Стол</h2><p class="item-card__desc">2x3</p>
+            </div>
+            <div class="item-card" role="button" aria-pressed="false" tabindex="0">
+                <div class="item-card__thumbnail"><img src="https://picsum.photos/seed/lamp/80/80" alt="Лампа" class="item-card__image"></div>
+                <h2 class="item-card__title">Лампа</h2><p class="item-card__desc">1x1</p>
+            </div>
+            <div class="item-card" role="button" aria-pressed="false" tabindex="0">
+                <div class="item-card__thumbnail"><img src="https://picsum.photos/seed/shelf/80/80" alt="Полка" class="item-card__image"></div>
+                <h2 class="item-card__title">Полка</h2><p class="item-card__desc">1x3</p>
+            </div>
+            <div class="item-card" disabled role="button" aria-pressed="false" aria-disabled="true" tabindex="-1">
+                <div class="item-card__thumbnail"><img src="https://picsum.photos/seed/rug/80/80" alt="Ковер" class="item-card__image"></div>
+                <h2 class="item-card__title">Ковер</h2><p class="item-card__desc">Нет</p>
+            </div> -->
+        </div>
+    </nav>
+    <!-- <div class="side-panel">
+        <div class="furnitures-section">
+            <h3>Furnitures</h3>
+            <div class="list">
+            <ng-container *ngFor="let id of game.furnituresRemain; let i = index">
+                <a class="item" (mousedown)="selectFurniture(id)">{{ game.furnitures[id].name }}</a>
+            </ng-container>
+            </div>
+        </div>
+        <div>
+            <button (click)="submit()">Submit</button>
+        </div>
+        <div>
+            <button (click)="tryAgain()">Try Again</button>
+        </div>
+    </div> -->
+</div>

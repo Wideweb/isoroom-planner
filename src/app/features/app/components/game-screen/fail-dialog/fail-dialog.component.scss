@@ -1,0 +1,25 @@
+@import 'common.scss';
+
+.modal__icon {
+    width: 48px;
+    height: 48px;
+}
+
+.modal__icon--success { color: $success; }
+.modal__icon--failure { color: $danger; }
+
+.modal__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal__buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+.modal__buttons > .button-link {
+    flex: 1;
+}

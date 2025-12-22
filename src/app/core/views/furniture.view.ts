@@ -37,7 +37,7 @@ export default class FurnitureView extends BaseView {
             sprite.eventMode = 'static';
             sprite.on('pointerdown', (event) => {
                 event.stopPropagation();
-                this.selectSubject.next(this);
+                this.selectSubject.next({view: this, event});
             });
 
             this.views.push(sprite);

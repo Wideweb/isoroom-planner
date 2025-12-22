@@ -1,6 +1,6 @@
-<h1>Room Planner</h1>
-<button (click)="loadLevel(1)">Level 1</button>
-<button (click)="loadLevel(2)">Level 2</button>
-<ng-container *ngIf="loaded$ | async">
-    <game-level [data]="(levelData$ | async)!"></game-level>
+<router-outlet></router-outlet>
+
+<ng-container *ngIf="spinner.shown$ | async">
+  <div class="spinner-overlay"></div>
+  <app-spinner></app-spinner>
 </ng-container>

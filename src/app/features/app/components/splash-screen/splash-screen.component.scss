@@ -1,0 +1,27 @@
+@import 'common.scss';
+
+:host {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    animation: slide-up $dur-slow $easing-soft 100ms backwards;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    animation: slide-up $dur-slow $easing-soft 200ms backwards;
+}

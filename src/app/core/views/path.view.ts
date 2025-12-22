@@ -3,7 +3,6 @@ import { isoGridToWorld } from "../math.helper";
 import * as PIXI from 'pixi.js';
 import { createIsoQuadPath } from "./primitive.helper";
 import BaseView from "./base.view";
-import FurnitureView from "./furniture.view";
 
 export default class PathView extends BaseView {
     private prevTileWidth = -1;

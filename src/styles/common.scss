@@ -3,31 +3,37 @@ $font-bold: "Inter Bold";
 $font-demi: "Inter Demi";
 $font-code: "Source Code";
 
-$white: #FAFAFA;
-$white-2: #F3F5FB;
-$black: #1F1F1F;
-$grey: #575757;
-$light-grey: #BCBCBC;
-$light-grey-2: #818181;
-$green: #85D94C;
-$green-secondary: #6AAE3D;
-$dark-green: #50822E;
-$blue: #4F6AF4;
-$blue-secondary: #3E54C2;
-$light-blue: #E4E8FA;
-$light-blue-2: #C5CEFB;
-$dark-blue: #2D3C89;
-$red: #F44F4F;
-$orange: #FFAA7A;
+$white: #F2F2F2;
+$bg-gradient-start: #1c1c1e;
+$bg-gradient-end: #2c2c2e;
+$panel-glass: rgba(44, 44, 46, 0.6);
+$accent: #0a84ff;
+$accent-weak: rgba(10, 132, 255, 0.2);
+$accent-hover: #409cff;
+$text-primary: #f2f2f7;
+$text-secondary: #8e8e93;
+$success: #28a745;
+$danger: #dc3545;
+$warning: #ffc107;
 
-$dark-theme-bg-primary: #222831;
-$dark-theme-bg-secondary: #31363F;
-$dark-theme-border: #383838;
-$dark-theme-text-primary: #76ABAE;
-$dark-theme-text: #FAFAFA;
-$dark-theme-red: #FF6347;
+$tile-base: rgba(72, 72, 74, 0.5);
+$tile-accessible: rgba(50, 215, 75, 0.2);
+$tile-blocked: rgba(99, 99, 102, 0.4);
+$tile-entrance: rgba(10, 132, 255, 0.3);
+$tile-border: rgba(255, 255, 255, 0.08);
 
-$transitionTime: 0.125s;
+/* Shadows & Radii */
+$shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.2);
+$shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.3);
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+
+/* Animation Timings */
+$dur-fast: 120ms;
+$dur-medium: 250ms;
+$dur-slow: 400ms;
+$easing-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
 
 @function toRem($value) {
     $remValue: ($value / 16) + rem; 
