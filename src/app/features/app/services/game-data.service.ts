@@ -6,10 +6,37 @@ import { GameLevelListDto } from '../models/game-level-list.model';
 import { GameLevelData } from 'src/app/core/game.model';
 import GameAssets from 'src/app/core/game-assets';
 
+const FAKE_LEVELS = [
+  {
+    id: 1,
+    order: 0,
+    locked: false,
+    completed: true,
+  },
+  {
+    id: 2,
+    order: 1,
+    locked: false,
+    completed: false,
+  },
+  {
+    id: 3,
+    order: 2,
+    locked: true,
+    completed: false,
+  },
+  {
+    id: 4,
+    order: 3,
+    locked: true,
+    completed: false,
+  }
+];
+
 @Injectable({
   providedIn: 'root',
 })
-export class GameLevelService {
+export class GameDataService {
 
     private gameAssets = new GameAssets();
 

@@ -44,8 +44,8 @@ export default class FurniturePreviewView extends BaseView {
 
             const quad = new PIXI.Graphics();
             const quadPath = createIsoQuadPath(this.tileWidth.value, this.tileHeight.value);
-            quad.poly(quadPath).fill({ color: isValid ? 0x34d399 : 0xf87171, alpha: 0.6 });
-            quad.poly(quadPath).stroke({ color: 0xffffff, width: 2, alpha: 0.5 });
+            quad.poly(quadPath).fill({ color: isValid ? 0x28a745 : 0xdc3545, alpha: 0.5 });
+            quad.poly(quadPath).stroke({ color: 0xffffff, width: 2, alpha: 0.25 });
 
             quad.position.set(worldPos.x, worldPos.y);
 
@@ -57,7 +57,7 @@ export default class FurniturePreviewView extends BaseView {
 
             const quad = new PIXI.Graphics();
             const quadPath = createIsoQuadPath(this.tileWidth.value, this.tileHeight.value);
-            quad.poly(quadPath).fill({ color: 0x38bdf8, alpha: 0.5 });
+            quad.poly(quadPath).fill({ color: 0x0a84ff, alpha: 0.5 });
 
             quad.position.set(worldPos.x, worldPos.y);
 

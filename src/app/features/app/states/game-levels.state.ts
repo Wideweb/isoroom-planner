@@ -4,7 +4,8 @@ import { patch } from '@ngxs/store/operators';
 import { firstValueFrom } from "rxjs";
 import { GameLevelListDto } from "../models/game-level-list.model";
 import { GameLevelsLoad } from "./game-levels.actions";
-import { GameLevelService } from "../services/game-level.service";
+import { GameDataService } from "../services/game-data.service";
+import { AuthUserChanged, Logout } from "../../auth/state/auth.actions";
 
 export interface GameLevelsStateModel {
   list: GameLevelListDto[];
@@ -39,7 +40,7 @@ export class GameLevelsState {
     return state.loaded;
   }
 
-  constructor(private service: GameLevelService) {}
+  constructor(private service: GameDataService) {}
 
   @Action(GameLevelsLoad)
   async load(ctx: StateContext<GameLevelsStateModel>) {
@@ -66,8 +67,8 @@ export class GameLevelsState {
     }
   }
 
-  // @Action([Logout, AuthUserChanged])
-  // clear(ctx: StateContext<ModuleListStateModel>) {
-  //   ctx.patchState(defaults());
-  // }
+  @Action([Logout, AuthUserChanged])
+  clear(ctx: StateContext<GameLevelsStateModel>) {
+    ctx.patchState(defaults());
+  }
 }

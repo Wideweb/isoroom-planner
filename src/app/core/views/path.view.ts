@@ -38,8 +38,8 @@ export default class PathView extends BaseView {
 
             const quad = new PIXI.Graphics();
             const quadPath = createIsoQuadPath(this.tileWidth.value, this.tileHeight.value);
-            quad.poly(quadPath).fill({ color: 0x0000ff, alpha: 0.5 });
-            quad.poly(quadPath).stroke({ color: 0x0000ff, width: 1.0 });
+            quad.poly(quadPath).fill({ color: 0x0a84ff, alpha: 0.5 });
+            quad.poly(quadPath).stroke({ color: 0x0a84ff, width: 1.0 });
             quad.position.set(worldPos.x, worldPos.y);
 
             this.container.addChild(quad);

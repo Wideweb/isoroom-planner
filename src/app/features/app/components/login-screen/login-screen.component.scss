@@ -1,0 +1,28 @@
+@import 'common.scss';
+
+:host {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.login__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    animation: slide-up $dur-slow $easing-soft 100ms backwards;
+}
+
+.login__subtitle {
+    font-size: 1rem;
+    color: $text-secondary;
+    animation: slide-up $dur-slow $easing-soft 200ms backwards;
+    max-width: 320px;
+}
+
+.login__cta {
+    animation: slide-up $dur-slow $easing-soft 300ms backwards;
+}
+
+.google-btn {
+    max-height: 32px;
+}

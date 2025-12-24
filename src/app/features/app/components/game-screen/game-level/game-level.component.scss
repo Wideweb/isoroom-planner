@@ -14,6 +14,9 @@
 }
 
 .game-board {
+    transition: opacity $dur-slow $easing-soft;
+    transition-delay: 250ms;
+
     flex: 1;
 
     canvas {
@@ -29,16 +32,40 @@
     flex-direction: column;
     height: 100vh;
     padding-top: env(safe-area-inset-top, 1rem);
+
+    &:not(.is-visible) .header-wrapper {
+        transform: translateY(-100%);
+    }
+    &:not(.is-visible) .game-board {
+        opacity: 0;
+    }
+    &:not(.is-visible) .toolbar {
+        transform: translateY(100%);
+    }
 }
 
-.header__tools {
-    display: flex;
-    gap: 0.5rem;
-    margin-left: auto;
+.header-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    background-color: $panel-glass;
+    transition: transform $dur-slow $easing-soft;
+}
+
+.header {
+    animation: none;
+
+    .header__tools {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
 }
 
 .toolbar {
-    position: sticky;
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -48,6 +75,8 @@
     border-top: 1px solid $tile-border;
     z-index: 100;
     padding-bottom: env(safe-area-inset-bottom, 1rem);
+
+    transition: transform $dur-slow $easing-soft;
 }
 
 .toolbar__scroller {
@@ -57,6 +86,7 @@
     padding: 1rem 1.25rem;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
 }
 .toolbar__scroller::-webkit-scrollbar { display: none; }
 
@@ -103,3 +133,52 @@
 
 .item-card__title { font-size: 0.8rem; font-weight: 600; margin: 0; line-height: 1.2; }
 .item-card__desc { font-size: 0.7rem; color: $text-secondary; margin: 0; }
+
+
+.placement-actions {
+    position: absolute;
+    bottom: calc(125px + env(safe-area-inset-bottom, 0)); /* Toolbar height + padding + safe area */
+    left: 50%;
+    transform: translate(-50%, 20px);
+    display: flex;
+    gap: 1rem;
+    background-color: $panel-glass;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    padding: 0.75rem;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-strong;
+    z-index: 101;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity $dur-medium $easing-soft, transform $dur-medium $easing-soft;
+}
+
+.placement-actions {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+
+.action-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 50%;
+    background-color: $accent-weak;
+    color: $text-primary;
+    border: 1px solid $tile-border;
+}
+.action-btn:hover {
+    background-color: $accent-weak; /* Keep color consistent on hover */
+}
+.action-btn--primary {
+    background-color: $accent;
+    color: white;
+}
+.action-btn--primary:hover {
+    background-color: $accent-hover;
+}

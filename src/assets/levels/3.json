@@ -1,0 +1,170 @@
+{
+  "room": {
+    "cells": [
+
+      { "x": 0, "y": 0 },
+      { "x": 0, "y": 1 },
+      { "x": 0, "y": 2 },
+      { "x": 0, "y": 3 },
+      { "x": 0, "y": 4 },
+      { "x": 0, "y": 6 },
+      { "x": 0, "y": 7 },
+      { "x": 0, "y": 8 },
+
+      { "x": 1, "y": 2 },
+      { "x": 1, "y": 4 },
+      { "x": 1, "y": 6 },
+      { "x": 1, "y": 8 },
+
+      { "x": 2, "y": 0 },
+      { "x": 2, "y": 1 },
+      { "x": 2, "y": 2 },
+      { "x": 2, "y": 4 },
+      { "x": 2, "y": 6 },
+      { "x": 2, "y": 8 },
+
+      { "x": 3, "y": 0 },
+      { "x": 3, "y": 6 },
+      { "x": 3, "y": 8 },
+
+      { "x": 4, "y": 0 },
+      { "x": 4, "y": 1 },
+      { "x": 4, "y": 2 },
+      { "x": 4, "y": 3 },
+      { "x": 4, "y": 4 },
+      { "x": 4, "y": 5 },
+      { "x": 4, "y": 6 },
+      { "x": 4, "y": 8 },
+
+      { "x": 5, "y": 8 }
+
+    ],
+    "entrance": { "x": 5, "y": 8 }
+  },
+
+  "furnitures": [
+    {
+      "id": 1,
+      "name": "Fridge",
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "fridge",
+          "width": 64,
+          "height": 100,
+          "originX": 0,
+          "originY": 36
+        },
+        {
+          "name": "fridge",
+          "width": -64,
+          "height": 100,
+          "originX": 0,
+          "originY": 36
+        }
+      ],
+      "footprint": [
+        [
+          [1],
+          [5]
+        ],
+        [
+          [1, 5]
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Shelf",
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "shelf",
+          "width": 75,
+          "height": 100,
+          "originX": -15,
+          "originY": 35
+        },
+        {
+          "name": "shelf",
+          "width": -75,
+          "height": 100,
+          "originX": -15,
+          "originY": 20
+        }
+      ],
+      "footprint": [
+        [
+          [2, 1],
+          [5, 5]
+        ],
+        [
+          [1, 5],
+          [2, 5]
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Sink",
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "sink",
+          "width": -64,
+          "height": 102,
+          "originX": 0,
+          "originY": 35
+        },
+        {
+          "name": "sink",
+          "width": 64,
+          "height": 102,
+          "originX": 0,
+          "originY": 35
+        }
+      ],
+      "footprint": [
+        [
+          [1],
+          [5]
+        ],
+        [
+          [1, 5]
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Plate",
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "plate",
+          "width": -64,
+          "height": 102,
+          "originX": -5,
+          "originY": 25
+        },
+        {
+          "name": "plate",
+          "width": 64,
+          "height": 102,
+          "originX": -5,
+          "originY": 25
+        }
+      ],
+      "footprint": [
+        [
+          [1],
+          [5]
+        ],
+        [
+          [1, 5]
+        ]
+      ]
+    }
+  ],
+
+  "assets": ["assets/atlases/country_house.json"]
+}

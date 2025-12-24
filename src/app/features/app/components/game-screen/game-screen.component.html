@@ -1,5 +1,18 @@
-<div class="screen">
-    <ng-container *ngIf="loaded$ | async">
-        <game-level [data]="(levelData$ | async)!"></game-level>
-    </ng-container>
-</div>
+<ng-container *ngIf="(loaded$ | async)">
+    <game-level 
+        [id]="(levelId$ | async)!"
+        [order]="(levelOrder$ | async)!"
+        [data]="(levelData$ | async)!"
+        [hide]="(hidden$ | async)!"
+        (onSubmitResult)="handleSubmitResult($event)"
+        (onSwitchToNext)="toNextLevel()"
+        (onMenuTransition)="toMenu()"
+        (onLevelsTransition)="toLevels()"
+    ></game-level>
+</ng-container>
+<ng-container *ngIf="(showLoading$ | async)">
+    <div class="loading-overlay centered-layout">
+        <p class="loading-overlay__text">Loading...</p>
+        <p class="loading-overlay__fact">{{fact}}</p>
+    </div>
+</ng-container>

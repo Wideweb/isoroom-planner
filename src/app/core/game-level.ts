@@ -32,6 +32,8 @@ export default class GameLevel {
 
     public furnitureSelected: number = -1;
     public furnitureSelectedRotation: Rotation = 0;
+    public furnitureSelectedPosition = new Vector2();
+    public furnitureDrag = false;
 
     public roomView: RoomView | null = null;
     public furnitureView: FurnitureView[] = [];
@@ -40,7 +42,7 @@ export default class GameLevel {
     public pathView: PathView | null = null;
     public pathTracingAction: ViewActionPathTracing | null = null;
 
-    private lastPointerPosition = new Vector2()
+    private lastPointerPosition = new Vector2();
     private pointerAnchor = new Vector2();
 
     private cameraShakeAction = new StageActionCameraShake({strength: new Vector2(5, 5), time: 250});
@@ -130,22 +132,28 @@ export default class GameLevel {
     public handlePointerMove(x: number, y: number) {
       this.lastPointerPosition.x = x;
       this.lastPointerPosition.y = y;
+
+      if (this.furnitureDrag) {
+        this.furnitureSelectedPosition.x = x;
+        this.furnitureSelectedPosition.y = y;
+      }
     }
 
     public handlePointerUp(x: number, y: number) {
-      if (this.furnitureSelected >= 0) {
-        const x = this.lastPointerPosition.x - this.pointerAnchor.x;
-        const y = this.lastPointerPosition.y - this.pointerAnchor.y;
+      this.furnitureDrag = false;
+      // if (this.furnitureSelected >= 0) {
+      //   const x = this.lastPointerPosition.x - this.pointerAnchor.x;
+      //   const y = this.lastPointerPosition.y - this.pointerAnchor.y;
 
-        const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
-        const placement = new Placement(gridPos, this.furnitureSelectedRotation);
-        const isValid = isPlacementPossible(this.grid, this.furnitures[this.furnitureSelected], placement.position, placement.rotation);
+      //   const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
+      //   const placement = new Placement(gridPos, this.furnitureSelectedRotation);
+      //   const isValid = isPlacementPossible(this.grid, this.furnitures[this.furnitureSelected], placement.position, placement.rotation);
 
-        if (isValid) {          
-          this.placeFurniture(this.furnitureSelected, placement.position, placement.rotation);
-          this.furnitureSelected = -1;
-        }
-      }
+      //   if (isValid) {          
+      //     this.placeFurniture(this.furnitureSelected, placement.position, placement.rotation);
+      //     this.furnitureSelected = -1;
+      //   }
+      // }
     }
 
     public handlePointerDown(x: number, y: number) {
@@ -171,12 +179,12 @@ export default class GameLevel {
         if (this.gameState == GameLevelState.Validating) {
           const reached = this.pathTracingAction?.reached.includes(entry.key);
           if (reached) {
-            tint = 0x00ff00;
+            tint = 0x28a745;
           }
         }
         if (this.gameState == GameLevelState.ShowResult) {
           const reached = this.pathTracingAction?.reached.includes(entry.key);
-          tint = reached ? 0x00ff00 : 0xff0000;
+          tint = reached ? 0x28a745 : 0xdc3545;
         }
 
         this.furnitureView[entry.key].update2(deltaMS, entry.value, 1.0, tint);
@@ -184,8 +192,8 @@ export default class GameLevel {
       });
 
       if (this.furnitureSelected >= 0) {
-        const x = this.lastPointerPosition.x - this.pointerAnchor.x;
-        const y = this.lastPointerPosition.y - this.pointerAnchor.y;
+        const x = this.furnitureSelectedPosition.x - this.pointerAnchor.x;
+        const y = this.furnitureSelectedPosition.y - this.pointerAnchor.y;
 
         const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
         const placement = new Placement(gridPos, this.furnitureSelectedRotation);
@@ -210,6 +218,24 @@ export default class GameLevel {
 
     public isPlacementValid(index: number, placement: Placement) {
       return isPlacementValid(this.grid, this.furnitures[index], placement.position, placement.rotation);
+    }
+
+    public tryPlaceSelectedFurniture() {
+      if (this.furnitureSelected < 0) {
+        return;
+      }
+
+      const x = this.furnitureSelectedPosition.x - this.pointerAnchor.x;
+      const y = this.furnitureSelectedPosition.y - this.pointerAnchor.y;
+
+      const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
+      const placement = new Placement(gridPos, this.furnitureSelectedRotation);
+      const isValid = isPlacementPossible(this.grid, this.furnitures[this.furnitureSelected], placement.position, placement.rotation);
+
+      if (isValid) {          
+        this.placeFurniture(this.furnitureSelected, placement.position, placement.rotation);
+        this.furnitureSelected = -1;
+      }
     }
 
     public placeFurniture(index: number, position: Vector2, rotation: Rotation): void {
@@ -296,6 +322,12 @@ export default class GameLevel {
             return;
         }
 
+        if (this.furnitureSelected < 0 || this.furnitureSelected == index) {
+          this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
+          this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
+          this.furnitureDrag = true;
+        }
+
         if (this.furnitureSelected >= 0) {
             return;
         }
@@ -324,7 +356,10 @@ export default class GameLevel {
       } else {
           this.furnitureSelected = index;
           this.furnitureSelectedRotation = 0;
+          this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
+          this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
       }
+      this.furnitureDrag = true;
       this.pointerAnchor = new Vector2();
     }
 

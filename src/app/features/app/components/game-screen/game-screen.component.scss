@@ -5,3 +5,42 @@
     height: 100%;
     width: 100%;
 }
+
+.loading-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, $bg-gradient-start, $bg-gradient-end);
+    z-index: 1000;
+    top: 0;
+    left: 0;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-overlay__spinner {
+    width: 56px;
+    height: 56px;
+    border: 6px solid $accent-weak;
+    border-top-color: $accent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-overlay__text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.loading-overlay__fact {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    max-width: 350px;
+    min-height: 3em; /* Reserve space to prevent layout shift */
+    animation: fade-in $dur-slow $easing-soft;
+}

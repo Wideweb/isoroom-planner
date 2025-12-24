@@ -1,11 +1,12 @@
-import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, HostListener, Input } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, HostListener, Input, Output, EventEmitter } from '@angular/core';
 
 import { GameLevelData } from '../../../../../core/game.model';
 import GameLevel from '../../../../../core/game-level';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { FailDialogComponent, FailDialogModel, FailtDialogSelection } from '../fail-dialog/fail-dialog.component';
-import { Router } from '@angular/router';
+import { GameLevelSubmitResultDto } from '../../../models/game-progress.model';
+import { SuccessDialogComponent, SuccessDialogModel, SuccessDialogSelection } from '../success-dialog/success-dialog.component';
 
 @Component({
   selector: 'game-level',
@@ -14,14 +15,35 @@ import { Router } from '@angular/router';
 })
 export class GameLevelComponent implements AfterViewInit, OnDestroy {
   @Input()
+  public id!: number;
+
+  @Input()
+  public order!: number;
+
+  @Input()
   public data!: GameLevelData;
+
+  @Input()
+  public hide: boolean = true;
+
+  @Output()
+  public onSubmitResult = new EventEmitter<GameLevelSubmitResultDto>();
+
+  @Output()
+  public onSwitchToNext = new EventEmitter<void>();
+
+  @Output()
+  public onMenuTransition = new EventEmitter<void>();
+
+  @Output()
+  public onLevelsTransition = new EventEmitter<void>();
 
   @ViewChild('pixiCanvas', { static: true }) pixiCanvas!: ElementRef<HTMLCanvasElement>;
   private resizeObserver!: ResizeObserver;
 
   public game = new GameLevel();
 
-  constructor(private dialog: MatDialog, private router: Router) { }
+  constructor(private dialog: MatDialog) { }
 
   @HostListener('window:resize', ['$event']) onResize(event: UIEvent) { 
     this.game.updateViewPort();
@@ -51,6 +73,8 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   @HostListener('window:pointerdown', ['$event'])
   onPointerDown(event: PointerEvent) { 
+    console.log(event.target);
+
     if (!this.pixiCanvas || !this.pixiCanvas.nativeElement) return;
 
     const rect = (this.pixiCanvas.nativeElement as any).getBoundingClientRect();
@@ -60,16 +84,16 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
     this.game.handlePointerDown(x, y);
   }
 
-  @HostListener('window:keydown', ['$event'])
-  async handleKeyboardEvent(event: KeyboardEvent) {
-    if (event.key.toLowerCase() === 'r') {
-      this.game.rotateSelected();
-    }
+  // @HostListener('window:keydown', ['$event'])
+  // async handleKeyboardEvent(event: KeyboardEvent) {
+  //   if (event.key.toLowerCase() === 'r') {
+  //     this.game.rotateSelected();
+  //   }
 
-    if (event.key.toLowerCase() === 'escape') {
-      this.game.select(-1);
-    }
-  }
+  //   if (event.key.toLowerCase() === 'escape') {
+  //     this.game.select(-1);
+  //   }
+  // }
 
   async ngAfterViewInit() {  
     await this.game.init(this.pixiCanvas.nativeElement);
@@ -88,12 +112,32 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
     const blocked = await this.game.submit();
     await this.delay(500);
     if (blocked > 0) {
+      this.onSubmitResult.emit({ id: this.id, accepted: false, rejected: true, score: 10 });
       await this.failPath(blocked);
+    } else {
+      this.onSubmitResult.emit({ id: this.id, accepted: true, rejected: false, score: 0 });
+      await this.successPath(10);
     }
   }
 
   async tryAgain() {
     await this.game.restart();
+  }
+
+  async successPath(score: number) {
+    const dialog$ = this.dialog
+      .open<SuccessDialogComponent, SuccessDialogModel, SuccessDialogSelection>(SuccessDialogComponent, { 
+        disableClose: true,
+        data: { score }
+      })
+      .afterClosed();
+
+      const selection = await firstValueFrom(dialog$);
+      if (selection == SuccessDialogSelection.Retry) {
+        await this.tryAgain();
+      } else {
+        this.onSwitchToNext.emit();
+      }
   }
 
   async failPath(blocked: number) {
@@ -108,12 +152,31 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       if (selection == FailtDialogSelection.Retry) {
         await this.tryAgain();
       } else {
-        this.router.navigate(['/menu']);
+        this.onMenuTransition.emit();
       }
+  }
+
+  toLevels() {
+    this.onLevelsTransition.emit();
   }
 
   delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  cancelSelection(event: PointerEvent) {
+    event.stopPropagation();
+    this.game.select(-1);
+  }
+
+  rotateSelection(event: PointerEvent) {
+    event.stopPropagation();
+    this.game.rotateSelected();
+  }
+
+  placeSelection(event: PointerEvent) {
+    event.stopPropagation();
+    this.game.tryPlaceSelectedFurniture();
   }
 
   ngOnDestroy() {

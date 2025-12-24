@@ -1,0 +1,60 @@
+@import 'common.scss';
+
+:host {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.container {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-auto-rows: min-content;
+    justify-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    height: 100%;
+    width: 100%;
+}
+
+.level-card {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    min-height: 80px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: $radius-lg;
+    background-color: $panel-glass;
+    border: 1px solid $tile-border;
+    box-shadow: $shadow-soft;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    transition: transform $dur-medium $easing-soft, box-shadow $dur-medium $easing-soft;
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: $shadow-strong;
+    }
+        
+    &.completed {
+        background-color: $accent-weak;
+        color: $accent;
+    }
+
+    &.locked {
+        background-color: rgba(128,128,128,0.1);
+        color: $text-secondary;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .icon {
+        width: 32px;
+        height: 32px;
+    }
+}

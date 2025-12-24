@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { patch } from '@ngxs/store/operators';
 import { GameLevelData } from "src/app/core/game.model";
-import { GameLevelService } from "../services/game-level.service";
+import { GameDataService } from "../services/game-data.service";
 import { GameLevelLoadLevel } from "./game-level.actions";
 
 export interface GameLevelStateModel {
@@ -38,7 +38,7 @@ export class GameLevelState {
     return state.loaded;
   }
 
-  constructor(private service: GameLevelService) {}
+  constructor(private service: GameDataService) {}
 
   @Action(GameLevelLoadLevel)
   async load(ctx: StateContext<GameLevelStateModel>, action: GameLevelLoadLevel) {

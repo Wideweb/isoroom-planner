@@ -3,20 +3,26 @@ import { AppInitService } from './services/app-init.service';
 import { AppComponent } from './components/app/app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgxsModule } from "@ngxs/store";
-import { MatDialogModule } from '@angular/material/dialog';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 import { AppSpinnerComponent } from './components/spinner/spinner.component';
 import { RouterModule } from '@angular/router';
 import { routes } from './routes';
-import { GameLevelsState } from './states/game-levels.state';
 import { MenuScreenComponent } from './components/menu-screen/menu-screen.component';
 import { LevelsScreenComponent } from './components/levels-screen/levels-screen.component';
-import { GameLevelService } from './services/game-level.service';
+import { GameDataService } from './services/game-data.service';
 import { SpinnerService } from './services/spinner.service';
 import { GameLevelState } from './states/game-level.state';
 import { GameScreenComponent } from './components/game-screen/game-screen.component';
 import { GameLevelComponent } from './components/game-screen/game-level/game-level.component';
+import { AuthModule } from '../auth/auth.module';
+import { LoginScreenComponent } from './components/login-screen/login-screen.component';
+import { AuthInterceptor } from '../auth/interceptors/auth.interceptor';
+import { ServerErrorInterceptor } from '../common/interceptors/server-error.interceptor';
+import { SpinnerInterceptor } from '../common/interceptors/spinner.interceptor';
+import { TimezoneInterceptor } from '../common/interceptors/timezone.interceptor';
+import { GameProgressState } from './states/game-progress.state';
+import { LevelsMapComponent } from './components/levels-screen/levels-map/levels-map.component';
 
 export function initializeAppFactory(appInitService: AppInitService) {
   return (): Promise<any> => {
@@ -29,8 +35,10 @@ export function initializeAppFactory(appInitService: AppInitService) {
     AppComponent,
     AppSpinnerComponent,
     SplashScreenComponent,
+    LoginScreenComponent,
     MenuScreenComponent,
     LevelsScreenComponent,
+    LevelsMapComponent,
     GameScreenComponent,
     GameLevelComponent,
   ],
@@ -38,8 +46,8 @@ export function initializeAppFactory(appInitService: AppInitService) {
     BrowserModule,
     HttpClientModule,
     RouterModule.forRoot(routes),
-    NgxsModule.forRoot([GameLevelsState, GameLevelState]),
-    MatDialogModule
+    NgxsModule.forRoot([GameProgressState, GameLevelState]),
+    AuthModule.forRoot(),
   ],
   providers: [
     {
@@ -48,8 +56,23 @@ export function initializeAppFactory(appInitService: AppInitService) {
       deps: [AppInitService],
       multi: true
     },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ServerErrorInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TimezoneInterceptor,
+      multi: true,
+    },
     SpinnerService,
-    GameLevelService,
+    GameDataService,
   ],
   bootstrap: [AppComponent]
 })

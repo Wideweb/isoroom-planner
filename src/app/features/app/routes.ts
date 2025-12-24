@@ -3,8 +3,11 @@ import { SplashScreenComponent } from "./components/splash-screen/splash-screen.
 import { MenuScreenComponent } from "./components/menu-screen/menu-screen.component";
 import { LevelsScreenComponent } from "./components/levels-screen/levels-screen.component";
 import { GameScreenComponent } from "./components/game-screen/game-screen.component";
+import { LoginScreenComponent } from "./components/login-screen/login-screen.component";
 
-export const routes: Routes = [  
+export const routes: Routes = [
+  { path: 'login', component: LoginScreenComponent },
+
   { path: 'menu', component: MenuScreenComponent },
 
   { path: 'levels', component: LevelsScreenComponent },

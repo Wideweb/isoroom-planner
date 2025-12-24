@@ -2,7 +2,9 @@
     <div class="container">
         <!-- <h1 class="header__title">Главное меню</h1> -->
         <div class="menu__buttons">
-            <a (click)="start()" class="button-link button--large">Play</a>
+            <ng-container *ngIf="!(finished$ | async)">
+                <a (click)="start()" class="button-link button--large">{{ (hasProgress$ | async) ? 'Continue' : 'Start' }}</a>
+            </ng-container>
             <a routerLink="/levels" class="button-link button--large button--secondary">Levels</a>
             <a href="#" class="button-link button--large button--secondary" disabled>Settings</a>
         </div>

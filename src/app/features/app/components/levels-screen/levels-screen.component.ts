@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, shareReplay, Subject } from 'rxjs';
-import { Store } from '@ngxs/store';
-import { GameLevelData } from 'src/app/core/game.model';
-import { GameLevelLoadLevel } from '../../states/game-level.actions';
+import { Observable, Subject } from 'rxjs';
+import { Select, Store } from '@ngxs/store';
 import { Router } from '@angular/router';
+import { GameProgressState } from '../../states/game-progress.state';
+import { GameLevelProgressDto } from '../../models/game-progress.model';
 
 @Component({
   selector: 'levels-screen',
@@ -11,6 +11,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./levels-screen.component.scss']
 })
 export class LevelsScreenComponent implements OnInit, OnDestroy {
+  @Select(GameProgressState.levels)
+  public levels$!: Observable<GameLevelProgressDto[]>;
+
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(private store: Store, private router: Router) { }
