@@ -1,13 +1,13 @@
 {
-    "name": "Shader Learning",
-    "short_name": "Shader Learning",
+    "name": "Isometric Rooms",
+    "short_name": "Isometric Rooms",
     "theme_color": "#4f6af4",
     "background_color": "#fafafa",
     "display": "standalone",
     "orientation": "portrait-primary",
     "scope": "/",
-    "start_url": "https://shader-learning.com/?utm_source=app",
-    "description": "Interactive platform for learning shader programming and graphics through solving tasks in GLSL and HLSL.",
+    "start_url": "https://isometric-rooms.com/?utm_source=app",
+    "description": "Isometric Rooms is a game about the beauty of simple forms and the harmony of space.",
     "lang": "en-US",
     "icons": [
         {

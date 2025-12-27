@@ -23,6 +23,7 @@ import { SpinnerInterceptor } from '../common/interceptors/spinner.interceptor';
 import { TimezoneInterceptor } from '../common/interceptors/timezone.interceptor';
 import { GameProgressState } from './states/game-progress.state';
 import { LevelsMapComponent } from './components/levels-screen/levels-map/levels-map.component';
+import { FormsModule } from '@angular/forms';
 
 export function initializeAppFactory(appInitService: AppInitService) {
   return (): Promise<any> => {
@@ -48,6 +49,7 @@ export function initializeAppFactory(appInitService: AppInitService) {
     RouterModule.forRoot(routes),
     NgxsModule.forRoot([GameProgressState, GameLevelState]),
     AuthModule.forRoot(),
+    FormsModule,
   ],
   providers: [
     {

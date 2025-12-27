@@ -66,7 +66,7 @@ export default class FurnitureView extends BaseView {
 
         console.log('update furniture');
 
-        const scale = this.tileWidth.value / 64;
+        const scale = this.tileWidth.value / 32;
 
         this.views.forEach((sprite, index) => {
             const src = this.model.sprite[index];
@@ -74,7 +74,7 @@ export default class FurnitureView extends BaseView {
 
             const worldPos = isoGridToWorld(placement.position, this.tileWidth.value, this.tileHeight.value);
 
-            sprite.position.set(worldPos.x - src.originX * scale, worldPos.y - src.originY * scale);
+            sprite.position.set(worldPos.x + src.offsetX * scale, worldPos.y + src.offsetY * scale);
         });
 
         this.prevTileWidth = this.tileWidth.value;
@@ -86,5 +86,9 @@ export default class FurnitureView extends BaseView {
         this.container.removeChildren();
         this.container.addChild(this.views[this.prevPlacement.rotation / 90]);
         super.draw(container);
+    }
+
+    public currentSprite() {
+        return this.model.sprite[this.prevPlacement.rotation / 90];
     }
 }

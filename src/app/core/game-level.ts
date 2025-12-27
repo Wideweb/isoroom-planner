@@ -298,7 +298,7 @@ export default class GameLevel {
         const tileWidthFromWidth = (availableWidth * 2) / isoUnits;
         const tileWidthFromHeight = (availableHeight * 2) / isoUnits;
 
-        this.tileWidth.value = Math.min(tileWidthFromWidth, tileWidthFromHeight * 2.0, 128);
+        this.tileWidth.value = Math.min(tileWidthFromWidth, tileWidthFromHeight * 2.0, 64);
         this.tileWidth.value = Math.max(4, this.tileWidth.value);
 
         this.tileHeight.value = this.tileWidth.value / 2;
@@ -400,8 +400,13 @@ export default class GameLevel {
 
     public rotateSelected() {
         if (this.furnitureSelected >= 0) {
-            this.furnitureSelectedRotation = (this.furnitureSelectedRotation + 90) % 180 as Rotation;
+            this.furnitureSelectedRotation = (this.furnitureSelectedRotation + 90) % 360 as Rotation;
         }
+    }
+
+    public furnitureSprite() {
+      if (this.furnitureSelected < 0) return null;
+      return this.furnitureView[this.furnitureSelected].currentSprite();
     }
 
     public destroy() {

@@ -30,8 +30,8 @@ export interface SpriteSrc {
   name: string;
   width: number;
   height: number;
-  originX: number;
-  originY: number;
+  offsetX: number;
+  offsetY: number;
 }
 
 export interface Furniture {

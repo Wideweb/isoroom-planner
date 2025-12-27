@@ -30,15 +30,15 @@
           "name": "fridge",
           "width": 64,
           "height": 100,
-          "originX": 0,
-          "originY": 36
+          "offsetX": 0,
+          "offsetY": 36
         },
         {
           "name": "fridge",
           "width": -64,
           "height": 100,
-          "originX": 0,
-          "originY": 36
+          "offsetX": 0,
+          "offsetY": 36
         }
       ],
       "footprint": [
@@ -60,15 +60,15 @@
           "name": "shelf",
           "width": 75,
           "height": 100,
-          "originX": -15,
-          "originY": 35
+          "offsetX": -15,
+          "offsetY": 35
         },
         {
           "name": "shelf",
           "width": -75,
           "height": 100,
-          "originX": -15,
-          "originY": 20
+          "offsetX": -15,
+          "offsetY": 20
         }
       ],
       "footprint": [
@@ -91,15 +91,15 @@
           "name": "sink",
           "width": -64,
           "height": 102,
-          "originX": 0,
-          "originY": 35
+          "offsetX": 0,
+          "offsetY": 35
         },
         {
           "name": "sink",
           "width": 64,
           "height": 102,
-          "originX": 0,
-          "originY": 35
+          "offsetX": 0,
+          "offsetY": 35
         }
       ],
       "footprint": [
@@ -121,15 +121,15 @@
           "name": "plate",
           "width": -64,
           "height": 102,
-          "originX": -5,
-          "originY": 25
+          "offsetX": -5,
+          "offsetY": 25
         },
         {
           "name": "plate",
           "width": 64,
           "height": 102,
-          "originX": -5,
-          "originY": 25
+          "offsetX": -5,
+          "offsetY": 25
         }
       ],
       "footprint": [
