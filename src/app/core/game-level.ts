@@ -333,17 +333,23 @@ export default class GameLevel {
             return;
         }
 
-        this.furnitureSelectedState = SelectedFurnitureState.PickedUp;
-
-        if (this.furnitureSelected < 0 || this.furnitureSelected == index) {
-          this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
-          this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
-          this.furnitureDrag = true;
-        }
-
         if (this.furnitureSelected >= 0 && this.furnitureSelected != index) {
             this.tryPlaceSelectedFurniture();
         }
+
+        this.furnitureSelectedState = SelectedFurnitureState.PickedUp;
+        this.furnitureDrag = true;
+
+        if (index == this.furnitureSelected) {
+          const x = this.furnitureSelectedPosition.x - this.pointerAnchor.x;
+          const y = this.furnitureSelectedPosition.y - this.pointerAnchor.y;
+
+          this.pointerAnchor.x = this.lastPointerPosition.x - x;
+          this.pointerAnchor.y = this.lastPointerPosition.y - y;
+        }
+
+        this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
+        this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
 
         const palcement = this.furniturePlaced.getValue(index);
         if (!palcement) {
@@ -412,11 +418,15 @@ export default class GameLevel {
       this.gameState = GameLevelState.Appearing;
       this.roomFadeAction.reset();
       this.roomFadeAction.start();
-      await this.roomFadeAction.awaiter;
       this.gameState = GameLevelState.FurniturePlacing;
+      await this.roomFadeAction.awaiter;
     }
 
     public async continuePlacing() {
+      this.pathTracingAction?.reset();
+      this.pathTracingAction?.stop();
+      this.pathView!.cells.splice(0, this.pathView?.cells.length);
+      this.pathView!.isDirty = true;
       this.gameState = GameLevelState.FurniturePlacing;
     }
 
