@@ -13,6 +13,14 @@ export enum GameLevelState {
     ShowResult = 4,
 }
 
+export enum SelectedFurnitureState {
+    None = 0,
+    New = 1 << 0,
+    PickedUp = 1 << 1,
+    FirstClickHandled = 1 << 2,
+    FurnitureMoved = 1 << 3
+}
+
 export enum GridCellState {
     None = 0,
     Room = 1 << 0,

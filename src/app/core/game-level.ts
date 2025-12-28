@@ -1,4 +1,4 @@
-import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, SortedList, GameLevelState } from "./game.model";
+import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, SortedList, GameLevelState, SelectedFurnitureState } from "./game.model";
 import { Grid } from "./grid";
 import { getAccessibilityCells, getFootprint, isPlacementPossible, isPlacementValid } from "./furniture-placement.helper";
 import * as PIXI from 'pixi.js';
@@ -34,6 +34,7 @@ export default class GameLevel {
     public furnitureSelectedRotation: Rotation = 0;
     public furnitureSelectedPosition = new Vector2();
     public furnitureDrag = false;
+    public furnitureSelectedState: number = SelectedFurnitureState.None;
 
     public roomView: RoomView | null = null;
     public furnitureView: FurnitureView[] = [];
@@ -125,8 +126,8 @@ export default class GameLevel {
       this.app.start();
 
       this.gameState = GameLevelState.Appearing;
-      await this.roomView.addAction(this.roomFadeAction).awaiter;
       this.gameState = GameLevelState.FurniturePlacing;
+      await this.roomView.addAction(this.roomFadeAction).awaiter;
     }
 
     public handlePointerMove(x: number, y: number) {
@@ -159,6 +160,16 @@ export default class GameLevel {
     public handlePointerDown(x: number, y: number) {
       this.lastPointerPosition.x = x;
       this.lastPointerPosition.y = y;
+
+      if (this.furnitureSelectedState & SelectedFurnitureState.New) {
+        this.tryPlaceSelectedFurniture();
+      } else if (this.furnitureSelectedState & SelectedFurnitureState.PickedUp) {
+        if (this.furnitureSelectedState & SelectedFurnitureState.FirstClickHandled) {
+          this.tryPlaceSelectedFurniture();
+        } else {
+          this.furnitureSelectedState |= SelectedFurnitureState.FirstClickHandled;
+        }
+      }
     }
 
     public update(deltaMS: number) {
@@ -322,14 +333,16 @@ export default class GameLevel {
             return;
         }
 
+        this.furnitureSelectedState = SelectedFurnitureState.PickedUp;
+
         if (this.furnitureSelected < 0 || this.furnitureSelected == index) {
           this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
           this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
           this.furnitureDrag = true;
         }
 
-        if (this.furnitureSelected >= 0) {
-            return;
+        if (this.furnitureSelected >= 0 && this.furnitureSelected != index) {
+            this.tryPlaceSelectedFurniture();
         }
 
         const palcement = this.furniturePlaced.getValue(index);
@@ -351,6 +364,10 @@ export default class GameLevel {
           return;
       }
 
+      if (this.furnitureSelected != index && index >= 0) {
+        this.tryPlaceSelectedFurniture();
+      }
+
       if (this.furniturePlaced.hasKey(index)) {
           this.pickUpFurniture(index);
       } else {
@@ -358,6 +375,7 @@ export default class GameLevel {
           this.furnitureSelectedRotation = 0;
           this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
           this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
+          this.furnitureSelectedState = SelectedFurnitureState.New;
       }
       this.furnitureDrag = true;
       this.pointerAnchor = new Vector2();
@@ -395,6 +413,10 @@ export default class GameLevel {
       this.roomFadeAction.reset();
       this.roomFadeAction.start();
       await this.roomFadeAction.awaiter;
+      this.gameState = GameLevelState.FurniturePlacing;
+    }
+
+    public async continuePlacing() {
       this.gameState = GameLevelState.FurniturePlacing;
     }
 

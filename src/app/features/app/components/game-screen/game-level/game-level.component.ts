@@ -48,6 +48,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   private pointerDownY = 0;
   private toolbarRect: DOMRect | null = null;
   private isPointerDown = false;
+  private toolbarScrollLeft = 0;
 
   constructor(private dialog: MatDialog, private el: ElementRef) { }
 
@@ -63,7 +64,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       const dx = event.clientX - this.pointerDownX;
       const dy = event.clientY - this.pointerDownY;
       const insideToolbar = event.clientY >= this.toolbarRect.top && event.clientY <= this.toolbarRect.bottom;
-      if (Math.abs(dy) > Math.abs(dx) && this.pointerSelectionFurnitureIndex >= 0) { 
+      if (Math.abs(dy) > Math.abs(dx) * 0.5 && this.pointerSelectionFurnitureIndex >= 0) { 
         if (!insideToolbar) {
           // Drag detected 
           this.game.select(this.pointerSelectionFurnitureIndex);
@@ -77,12 +78,9 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
           const scroller = this.el.nativeElement.querySelector('.toolbar__scroller');
           const maxScrollLeft = scroller.scrollWidth - scroller.clientWidth;
-
-          let newScrollLeft = this.pointerDownX - dx;
+          let newScrollLeft = this.toolbarScrollLeft - dx;
           newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
-
           scroller.scrollLeft = newScrollLeft;
-
       }
     }
 
@@ -117,7 +115,9 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       this.pointerDownX = event.clientX;
       this.pointerDownY = event.clientY;
       this.toolbarRect = this.el.nativeElement.querySelector('.toolbar').getBoundingClientRect();
-    } else {
+      this.toolbarScrollLeft = this.el.nativeElement.querySelector('.toolbar__scroller').scrollLeft;
+    } 
+    else if ((event.target as HTMLElement).closest('.game-board')) {
       const rect = (this.pixiCanvas.nativeElement as any).getBoundingClientRect();
       let x = event.clientX - rect.left;
       let y = event.clientY - rect.top;
@@ -193,8 +193,10 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       const selection = await firstValueFrom(dialog$);
       if (selection == FailtDialogSelection.Retry) {
         await this.tryAgain();
-      } else {
+      } else if (selection == FailtDialogSelection.ToMenu) {
         this.onMenuTransition.emit();
+      } else {
+        this.game.continuePlacing();
       }
   }
 

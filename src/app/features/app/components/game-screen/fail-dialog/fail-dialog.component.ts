@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export enum FailtDialogSelection {
+  None,
   Retry,
   ToMenu
 }
@@ -27,5 +28,9 @@ export class FailDialogComponent {
 
   toMenu() {
     this.dialogRef.close(FailtDialogSelection.ToMenu);
+  }
+
+  close() {
+    this.dialogRef.close(FailtDialogSelection.None);
   }
 }
