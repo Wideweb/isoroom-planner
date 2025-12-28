@@ -54,7 +54,7 @@ export class GameScreenComponent implements OnInit, OnDestroy {
     this.showLoadingSubject.next(true);
     const levelId = this.route.snapshot.params['id'];
     await firstValueFrom(this.store.dispatch(new GameProgressLoadLevel(levelId)));
-    await this.delay(4000);
+    await this.delay(2000);
     this.hideSubject.next(false);
     this.showLoadingSubject.next(false);
   }

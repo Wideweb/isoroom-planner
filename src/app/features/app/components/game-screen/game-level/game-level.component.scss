@@ -4,13 +4,7 @@
     position: relative;
     height: 100%;
     width: 100%;
-}
-
-.container {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
+    overflow: hidden;
 }
 
 .game-board {
@@ -28,10 +22,13 @@
 }
 
 .app-layout {
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    height: 100vh;
     padding-top: env(safe-area-inset-top, 1rem);
+    overflow: hidden;
 
     &:not(.is-visible) .header-wrapper {
         transform: translateY(-100%);
