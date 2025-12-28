@@ -206,7 +206,7 @@ export default class GameLevel {
         this.furnitureSelectedView!.furnitureView = null;
       }
 
-      this.furnituresRemain = this.furnitures.map((it, index) => index).filter(index => !this.furniturePlaced.hasKey(index));
+      this.furnituresRemain = this.furnitures.map((it, index) => index).filter(index => !this.furniturePlaced.hasKey(index) && index != this.furnitureSelected);
     }
 
     public placeRoom(room: Room) {

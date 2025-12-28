@@ -43,7 +43,13 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   public game = new GameLevel();
 
-  constructor(private dialog: MatDialog) { }
+  private pointerSelectionFurnitureIndex = -1;
+  private pointerDownX = 0;
+  private pointerDownY = 0;
+  private toolbarRect: DOMRect | null = null;
+  private isPointerDown = false;
+
+  constructor(private dialog: MatDialog, private el: ElementRef) { }
 
   @HostListener('window:resize', ['$event']) onResize(event: UIEvent) { 
     this.game.updateViewPort();
@@ -52,6 +58,33 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   @HostListener('window:pointermove', ['$event'])
   onPointerMove(event: PointerEvent) { 
     if (!this.pixiCanvas || !this.pixiCanvas.nativeElement) return;
+
+    if (this.isPointerDown && this.toolbarRect) {
+      const dx = event.clientX - this.pointerDownX;
+      const dy = event.clientY - this.pointerDownY;
+      const insideToolbar = event.clientY >= this.toolbarRect.top && event.clientY <= this.toolbarRect.bottom;
+      if (Math.abs(dy) > Math.abs(dx) && this.pointerSelectionFurnitureIndex >= 0) { 
+        if (!insideToolbar) {
+          // Drag detected 
+          this.game.select(this.pointerSelectionFurnitureIndex);
+          this.isPointerDown = false;
+          this.toolbarRect = null;
+          this.pointerSelectionFurnitureIndex = -1;
+        } 
+      } else {
+          // Scroll detected
+          this.pointerSelectionFurnitureIndex = -1;
+
+          const scroller = this.el.nativeElement.querySelector('.toolbar__scroller');
+          const maxScrollLeft = scroller.scrollWidth - scroller.clientWidth;
+
+          let newScrollLeft = this.pointerDownX - dx;
+          newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
+
+          scroller.scrollLeft = newScrollLeft;
+
+      }
+    }
 
     const rect = (this.pixiCanvas.nativeElement as any).getBoundingClientRect();
     let x = event.clientX - rect.left;
@@ -62,6 +95,10 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   @HostListener('window:pointerup', ['$event'])
   onPointerUp(event: PointerEvent) { 
+    this.isPointerDown = false;
+    this.toolbarRect = null;
+    this.pointerSelectionFurnitureIndex = -1;
+
     if (!this.pixiCanvas || !this.pixiCanvas.nativeElement) return;
 
     const rect = (this.pixiCanvas.nativeElement as any).getBoundingClientRect();
@@ -73,15 +110,20 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   @HostListener('window:pointerdown', ['$event'])
   onPointerDown(event: PointerEvent) { 
-    console.log(event.target);
-
     if (!this.pixiCanvas || !this.pixiCanvas.nativeElement) return;
 
-    const rect = (this.pixiCanvas.nativeElement as any).getBoundingClientRect();
-    let x = event.clientX - rect.left;
-    let y = event.clientY - rect.top;
+    if ((event.target as HTMLElement).closest('.toolbar')) {
+      this.isPointerDown = true;
+      this.pointerDownX = event.clientX;
+      this.pointerDownY = event.clientY;
+      this.toolbarRect = this.el.nativeElement.querySelector('.toolbar').getBoundingClientRect();
+    } else {
+      const rect = (this.pixiCanvas.nativeElement as any).getBoundingClientRect();
+      let x = event.clientX - rect.left;
+      let y = event.clientY - rect.top;
 
-    this.game.handlePointerDown(x, y);
+      this.game.handlePointerDown(x, y);
+    }
   }
 
   // @HostListener('window:keydown', ['$event'])
@@ -105,7 +147,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   selectFurniture(index: number, event: PointerEvent) {
     this.onPointerDown(event);
-    this.game.select(index);
+    this.pointerSelectionFurnitureIndex = index;
   }
 
   async submit() {
@@ -182,5 +224,21 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     //this.resizeObserver.disconnect();
     this.game.destroy();
+  }
+
+  onXChanged(event: any) {
+    this.game.furnitureSprite()!.offsetX = event.target.value;
+  }
+
+  onYChanged(event: any) {
+    this.game.furnitureSprite()!.offsetY = event.target.value;
+  }
+
+  onWidthChanged(event: any) {
+    this.game.furnitureSprite()!.width = event.target.value;
+  }
+
+  onHeightChanged(event: any) {
+    this.game.furnitureSprite()!.height = event.target.value;
   }
 }
