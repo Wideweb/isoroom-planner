@@ -24,6 +24,8 @@ import { TimezoneInterceptor } from '../common/interceptors/timezone.interceptor
 import { GameProgressState } from './states/game-progress.state';
 import { LevelsMapComponent } from './components/levels-screen/levels-map/levels-map.component';
 import { FormsModule } from '@angular/forms';
+import { AppCommonModule } from "src/app/features/common/common.module";
+import { CommonModule } from '@angular/common';
 
 export function initializeAppFactory(appInitService: AppInitService) {
   return (): Promise<any> => {
@@ -50,7 +52,9 @@ export function initializeAppFactory(appInitService: AppInitService) {
     NgxsModule.forRoot([GameProgressState, GameLevelState]),
     AuthModule.forRoot(),
     FormsModule,
-  ],
+    AppCommonModule,
+    CommonModule
+],
   providers: [
     {
       provide: APP_INITIALIZER,

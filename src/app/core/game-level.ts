@@ -18,6 +18,10 @@ export default class GameLevel {
     public app = new PIXI.Application();
     public layer0 = new PIXI.Container();
 
+    get renderer(): PIXI.Renderer {
+      return this.app.renderer;
+    }
+
     public camera = new Camera();
     
     public grid!: Grid;

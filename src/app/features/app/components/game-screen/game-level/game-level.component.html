@@ -40,8 +40,14 @@
             <ng-container *ngFor="let id of game.furnituresRemain; let i = index">
 
                 <div class="item-card" [ngClass]="{'is-selected': id == game.furnitureSelected}" role="button" aria-pressed="true" (pointerdown)="selectFurniture(id, $event)">
-                    <div class="item-card__thumbnail"><img src="https://picsum.photos/seed/chair/80/80" [alt]="game.furnitures[id].name" class="item-card__image"></div>
-                    <h2 class="item-card__title">{{ game.furnitures[id].name }}</h2><p class="item-card__desc">1x1</p>
+                    <div class="item-card__thumbnail">
+                        <pixi-asset-img class="item-card__image" 
+                            [asset]="game.furnitures[id].sprite[0].name"
+                            [renderer]="game.renderer"
+                        ></pixi-asset-img>
+                    </div>
+                    <h2 class="item-card__title">{{ game.furnitures[id].name }}</h2>
+                    <!-- <p class="item-card__desc">1x1</p> -->
                 </div>
             
             </ng-container>

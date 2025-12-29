@@ -9,9 +9,12 @@ import { LocationHistoryService } from "./services/location-history.service";
 import { NgxsModule } from "@ngxs/store";
 import { CommonState } from "./state/common.state";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
+import { PixiAssetImgComponent } from "./components/pixi-asset-img/pixi-asset-img.component";
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    PixiAssetImgComponent,
+  ],
   imports: [
     CommonModule,
     HttpClientModule,
@@ -28,6 +31,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
     ReactiveFormsModule,
     MatDialogModule,
     MatSnackBarModule,
+    PixiAssetImgComponent,
   ],
 })
 export class AppCommonModule {
