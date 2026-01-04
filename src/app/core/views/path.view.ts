@@ -1,5 +1,5 @@
-import { Ref, Vector2 } from "../game.model";
-import { isoGridToWorld } from "../math.helper";
+import { Camera, Ref, Vector2 } from "../game.model";
+import { isoGridToView } from "../math.helper";
 import * as PIXI from 'pixi.js';
 import { createIsoQuadPath } from "./primitive.helper";
 import BaseView from "./base.view";
@@ -7,13 +7,15 @@ import BaseView from "./base.view";
 export default class PathView extends BaseView {
     private prevTileWidth = -1;
     private prevTileHeight = -1;
+    private cameraVersion = -1;
 
     public cells: Vector2[] = [];
     public isDirty = false;
 
     constructor(
         private tileWidth: Ref<number>,
-        private tileHeight: Ref<number>
+        private tileHeight: Ref<number>,
+        private camera: Camera
     ) {
         super();
     }
@@ -23,6 +25,7 @@ export default class PathView extends BaseView {
 
         if (this.prevTileWidth == this.tileWidth.value &&
             this.prevTileHeight == this.tileHeight.value &&
+            this.cameraVersion == this.camera.version &&
             !this.isDirty) {
             return;
         }
@@ -34,13 +37,13 @@ export default class PathView extends BaseView {
         }
 
         this.cells.forEach(cellPos => {
-            const worldPos = isoGridToWorld(cellPos, this.tileWidth.value, this.tileHeight.value);
+            const viewPos = isoGridToView(cellPos, this.camera, this.tileWidth.value, this.tileHeight.value);
 
             const quad = new PIXI.Graphics();
-            const quadPath = createIsoQuadPath(this.tileWidth.value, this.tileHeight.value);
+            const quadPath = createIsoQuadPath(this.tileWidth.value * this.camera.scale, this.tileHeight.value * this.camera.scale);
             quad.poly(quadPath).fill({ color: 0x0a84ff, alpha: 0.5 });
             quad.poly(quadPath).stroke({ color: 0x0a84ff, width: 1.0 });
-            quad.position.set(worldPos.x, worldPos.y);
+            quad.position.set(viewPos.x, viewPos.y);
 
             this.container.addChild(quad);
         });
@@ -48,5 +51,6 @@ export default class PathView extends BaseView {
         this.prevTileWidth = this.tileWidth.value;
         this.prevTileHeight = this.tileHeight.value;
         this.isDirty = false;
+        this.cameraVersion = this.camera.version;
     }
 }

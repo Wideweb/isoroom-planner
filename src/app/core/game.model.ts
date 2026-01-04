@@ -87,6 +87,8 @@ export interface Cell {
 export class Camera {
   position: Vector2 = { x: 0, y: 0 };
   rotation: Rotation = 0;
+  scale: number = 1;
+  version = 0;
 }
 
 export interface GameLevelData {
@@ -98,19 +100,19 @@ export interface GameLevelData {
 export class SortedList<K, V> {
     private items: { key: K; value: V }[] = [];
     private indexByKey = new Map<K, number>();
-    private readonly compare: (a: V, b: V) => number;
+    private readonly compare: (a: V, b: V, key1: K, key2: K) => number;
 
-    constructor(compareFn: (a: V, b: V) => number) {
+    constructor(compareFn: (a: V, b: V, key1: K, key2: K) => number) {
         this.compare = compareFn;
     }
 
-    private binarySearch(value: V): number {
+    private binarySearch(key: K, value: V): number {
         let left = 0;
         let right = this.items.length;
 
         while (left < right) {
             const mid = (left + right) >> 1;
-            const cmp = this.compare(value, this.items[mid].value);
+            const cmp = this.compare(value, this.items[mid].value, key, this.items[mid].key);
 
             if (cmp > 0) left = mid + 1;
             else right = mid;
@@ -123,7 +125,7 @@ export class SortedList<K, V> {
             this.remove(key);
         }
 
-        const index = this.binarySearch(value);
+        const index = this.binarySearch(key, value);
 
         this.items.splice(index, 0, { key, value });
 

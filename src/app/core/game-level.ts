@@ -1,8 +1,8 @@
 import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, SortedList, GameLevelState, SelectedFurnitureState } from "./game.model";
 import { Grid } from "./grid";
-import { getAccessibilityCells, getFootprint, isPlacementPossible, isPlacementValid } from "./furniture-placement.helper";
+import { getAccessibilityCells, getFootprint, getFootprintCenter, isPlacementPossible, isPlacementValid } from "./furniture-placement.helper";
 import * as PIXI from 'pixi.js';
-import { gridPlacementCompare, isoGridToView, viewToIsoGrid } from "./math.helper";
+import { gridPlacementCompare, isoGridToView, viewToIsoGridFloating } from "./math.helper";
 import FurnitureView from "./views/furniture.view";
 import RoomView from "./views/room.view";
 import FurniturePreviewView from "./views/furniture-preview.view";
@@ -25,18 +25,19 @@ export default class GameLevel {
     public camera = new Camera();
     
     public grid!: Grid;
-    public tileWidth = new Ref(64);
-    public tileHeight = new Ref(32);
+    public tileWidth = new Ref(32);
+    public tileHeight = new Ref(16);
 
     public room: Room | null = null;
 
     public furnitures: Furniture[] = [];
-    public furniturePlaced = new SortedList<number, Placement>(gridPlacementCompare);
+    public furniturePlaced = new SortedList<number, Placement>(gridPlacementCompare(this.camera, this.furnitures));
     public furnituresRemain: number[] = [];
 
     public furnitureSelected: number = -1;
     public furnitureSelectedRotation: Rotation = 0;
-    public furnitureSelectedPosition = new Vector2();
+    public furnitureSelectedViewPosition = new Vector2();
+    public furnitureSelectedGridPosition = new Vector2();
     public furnitureDrag = false;
     public furnitureSelectedState: number = SelectedFurnitureState.None;
 
@@ -81,11 +82,11 @@ export default class GameLevel {
 
       this.room = data.room;
       this.placeRoom(this.room);
-      this.roomView = new RoomView(this.room, this.tileWidth, this.tileHeight);
+      this.roomView = new RoomView(this.room, this.tileWidth, this.tileHeight, this.camera);
 
       this.furnitures = data.furnitures;
       this.furnitures.forEach((model, index) => {
-        const view = new FurnitureView(model, this.tileWidth, this.tileHeight);
+        const view = new FurnitureView(model, this.tileWidth, this.tileHeight, this.camera);
         this.furnitureView.push(view);
         view.select$.subscribe((event) => {
           this.lastPointerPosition.x = event.event.global.x;
@@ -93,38 +94,16 @@ export default class GameLevel {
           this.pickUpFurniture(index);
         });
       });
-      this.furnitureSelectedView = new FurniturePreviewView(this.tileWidth, this.tileHeight);
+      this.furnitureSelectedView = new FurniturePreviewView(this.tileWidth, this.tileHeight, this.camera);
+      this.furniturePlaced = new SortedList<number, Placement>(gridPlacementCompare(this.camera, this.furnitures));
 
       this.pathTracingAction = new ViewActionPathTracing({ time: 30, grid: this.grid, from: this.room?.entrance! });
       this.pathTracingAction.stop();
-      this.pathView = new PathView(this.tileWidth, this.tileHeight);
+      this.pathView = new PathView(this.tileWidth, this.tileHeight, this.camera);
       this.pathView.addAction(this.pathTracingAction);
 
       this.app.stage.eventMode = 'static';
       this.app.stage.hitArea = this.app.screen;
-
-      // this.app.stage.on('pointermove', (event) => {
-      //   console.log('pointermove');
-      //   this.lastPointerPosition.x = event.global.x;
-      //   this.lastPointerPosition.y = event.global.y;
-      // });
-
-      // this.app.stage.on('pointerup', (event) => {
-      //   console.log('pointerup')
-      //   if (this.furnitureSelected >= 0) {
-      //     const x = this.lastPointerPosition.x - this.pointerAnchor.x;
-      //     const y = this.lastPointerPosition.y - this.pointerAnchor.y;
-
-      //     const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
-      //     const placement = new Placement(gridPos, this.furnitureSelectedRotation);
-      //     const isValid = isPlacementPossible(this.grid, this.furnitures[this.furnitureSelected], placement.position, placement.rotation);
-
-      //     if (isValid) {          
-      //       this.placeFurniture(this.furnitureSelected, placement.position, placement.rotation);
-      //       this.furnitureSelected = -1;
-      //     }
-      //   }
-      // });
 
       this.app.ticker.add((ticker) => this.update(ticker.deltaMS));
       this.app.start();
@@ -139,26 +118,15 @@ export default class GameLevel {
       this.lastPointerPosition.y = y;
 
       if (this.furnitureDrag) {
-        this.furnitureSelectedPosition.x = x;
-        this.furnitureSelectedPosition.y = y;
+        this.furnitureSelectedViewPosition.x = x;
+        this.furnitureSelectedViewPosition.y = y;
+
+        this.furnitureSelectedGridPosition = viewToIsoGridFloating(this.furnitureSelectedViewPosition, this.camera, this.tileWidth.value, this.tileHeight.value);
       }
     }
 
     public handlePointerUp(x: number, y: number) {
       this.furnitureDrag = false;
-      // if (this.furnitureSelected >= 0) {
-      //   const x = this.lastPointerPosition.x - this.pointerAnchor.x;
-      //   const y = this.lastPointerPosition.y - this.pointerAnchor.y;
-
-      //   const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
-      //   const placement = new Placement(gridPos, this.furnitureSelectedRotation);
-      //   const isValid = isPlacementPossible(this.grid, this.furnitures[this.furnitureSelected], placement.position, placement.rotation);
-
-      //   if (isValid) {          
-      //     this.placeFurniture(this.furnitureSelected, placement.position, placement.rotation);
-      //     this.furnitureSelected = -1;
-      //   }
-      // }
     }
 
     public handlePointerDown(x: number, y: number) {
@@ -180,8 +148,6 @@ export default class GameLevel {
       this.cameraShakeAction.update(deltaMS, { camera: this.camera });
 
       this.layer0.removeChildren();
-      this.layer0.position.x = -this.camera.position.x;
-      this.layer0.position.y = -this.camera.position.y;
 
       this.roomView?.update(deltaMS);
       this.roomView?.draw(this.layer0);
@@ -207,10 +173,11 @@ export default class GameLevel {
       });
 
       if (this.furnitureSelected >= 0) {
-        const x = this.furnitureSelectedPosition.x - this.pointerAnchor.x;
-        const y = this.furnitureSelectedPosition.y - this.pointerAnchor.y;
+        const centerGridPos = getFootprintCenter(this.furnitures[this.furnitureSelected], new Vector2(), this.furnitureSelectedRotation);
+        const gridPos = new Vector2();
+        gridPos.x = Math.round(this.furnitureSelectedGridPosition.x - centerGridPos.x - this.pointerAnchor.x);
+        gridPos.y = Math.round(this.furnitureSelectedGridPosition.y - centerGridPos.y - this.pointerAnchor.y);
 
-        const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
         const placement = new Placement(gridPos, this.furnitureSelectedRotation);
         const isValid = isPlacementPossible(this.grid, this.furnitures[this.furnitureSelected], placement.position, placement.rotation);
 
@@ -240,10 +207,11 @@ export default class GameLevel {
         return;
       }
 
-      const x = this.furnitureSelectedPosition.x - this.pointerAnchor.x;
-      const y = this.furnitureSelectedPosition.y - this.pointerAnchor.y;
+      const centerGridPos = getFootprintCenter(this.furnitures[this.furnitureSelected], new Vector2(), this.furnitureSelectedRotation);
+      const gridPos = new Vector2();
+      gridPos.x = Math.round(this.furnitureSelectedGridPosition.x - centerGridPos.x - this.pointerAnchor.x);
+      gridPos.y = Math.round(this.furnitureSelectedGridPosition.y - centerGridPos.y - this.pointerAnchor.y);
 
-      const gridPos = viewToIsoGrid({x, y}, this.camera, this.tileWidth.value, this.tileHeight.value);
       const placement = new Placement(gridPos, this.furnitureSelectedRotation);
       const isValid = isPlacementPossible(this.grid, this.furnitures[this.furnitureSelected], placement.position, placement.rotation);
 
@@ -301,35 +269,45 @@ export default class GameLevel {
         // 1. Resize renderer to match current canvas element size
         this.app.renderer.resize(canvasWidth, canvasHeight);
 
-        // 2. Calculate optimal tile size
-        const isoUnits = this.grid.width + this.grid.height;
-
-        const paddingX = 0; // horizontal padding
-        const paddingY = 0; // vertical padding
-
-        const availableWidth = canvasWidth - paddingX;
-        const availableHeight = canvasHeight - paddingY;
-
-        const tileWidthFromWidth = (availableWidth * 2) / isoUnits;
-        const tileWidthFromHeight = (availableHeight * 2) / isoUnits;
-
-        this.tileWidth.value = Math.min(tileWidthFromWidth, tileWidthFromHeight * 2.0, 64);
-        this.tileWidth.value = Math.max(4, this.tileWidth.value);
-
-        this.tileHeight.value = this.tileWidth.value / 2;
-
-        // 3. Calculate new origin to center the grid
-        const gridCenterX = (this.grid.width - 1) / 2;
-        const gridCenterY = (this.grid.height - 1) / 2;
+        // 2. Grid corners
+        const corners = [
+          { x: 0, y: 0 },
+          { x: this.grid.width, y: 0 },
+          { x: 0, y: this.grid.height },
+          { x: this.grid.width, y: this.grid.height }
+        ]; 
         
+        // 3. Project corners into screen space
+        this.camera.position.x = 0;
+        this.camera.position.y = 0;
+        this.camera.scale = 1.0;
+        const projected = corners.map(c => isoGridToView(c, this.camera, 32, 16));
+
+        const minX = Math.min(...projected.map(p => p.x));
+        const maxX = Math.max(...projected.map(p => p.x));
+        const minY = Math.min(...projected.map(p => p.y));
+        const maxY = Math.max(...projected.map(p => p.y));
+
+        const gridWidthPx = maxX - minX;
+        const gridHeightPx = maxY - minY;
+
+        // 3. Calculate tileWidth so that grid fits the screen
+        const scaleX = canvasWidth / gridWidthPx;
+        const scaleY = canvasHeight / gridHeightPx;
+        const scale = Math.min(scaleX, scaleY, 3.0);
+
+        console.log(scaleX, scaleY);
+
+        // 4. Move grid into the center
+        const gridCenterX = (minX + maxX) / 2;
+        const gridCenterY = (minY + maxY) / 2;
         const screenCenterX = canvasWidth / 2;
         const screenCenterY = canvasHeight / 2;
 
-        const gridCenterScreenOffsetX = (gridCenterX - gridCenterY) * (this.tileWidth.value / 2);
-        const gridCenterScreenOffsetY = (gridCenterX + gridCenterY) * (this.tileHeight.value / 2);
-
-        this.camera.position.x = -(screenCenterX - gridCenterScreenOffsetX);
-        this.camera.position.y = -(screenCenterY - gridCenterScreenOffsetY);
+        this.camera.scale = scale;
+        this.camera.position.x = gridCenterX * scale - screenCenterX;
+        this.camera.position.y = gridCenterY * scale - screenCenterY;
+        this.camera.version++;
     }
 
     public pickUpFurniture(index: number) {
@@ -344,27 +322,33 @@ export default class GameLevel {
         this.furnitureSelectedState = SelectedFurnitureState.PickedUp;
         this.furnitureDrag = true;
 
-        if (index == this.furnitureSelected) {
-          const x = this.furnitureSelectedPosition.x - this.pointerAnchor.x;
-          const y = this.furnitureSelectedPosition.y - this.pointerAnchor.y;
+        const mouseGridPos = viewToIsoGridFloating(this.lastPointerPosition, this.camera, this.tileWidth.value, this.tileHeight.value);
 
-          this.pointerAnchor.x = this.lastPointerPosition.x - x;
-          this.pointerAnchor.y = this.lastPointerPosition.y - y;
+        if (index == this.furnitureSelected) {
+          const centerGridPos = getFootprintCenter(this.furnitures[index], new Vector2(), this.furnitureSelectedRotation);
+          const gridPos = new Vector2();//viewToIsoGridFloating(this.furnitureSelectedViewPosition, this.camera, this.tileWidth.value, this.tileHeight.value);
+          gridPos.x = Math.round(this.furnitureSelectedGridPosition.x - centerGridPos.x - this.pointerAnchor.x);
+          gridPos.y = Math.round(this.furnitureSelectedGridPosition.y - centerGridPos.y - this.pointerAnchor.y);
+
+          this.pointerAnchor.x = -gridPos.x - centerGridPos.x + mouseGridPos.x;
+          this.pointerAnchor.y = -gridPos.y - centerGridPos.y + mouseGridPos.y;
         }
 
-        this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
-        this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
+        this.furnitureSelectedViewPosition.x = this.lastPointerPosition.x;
+        this.furnitureSelectedViewPosition.y = this.lastPointerPosition.y;
+        this.furnitureSelectedGridPosition = viewToIsoGridFloating(this.furnitureSelectedViewPosition, this.camera, this.tileWidth.value, this.tileHeight.value);
 
         const palcement = this.furniturePlaced.getValue(index);
         if (!palcement) {
             return;
         }
 
-        const viewPos = isoGridToView(palcement.position, this.camera, this.tileWidth.value, this.tileHeight.value);
-        this.pointerAnchor.x = this.lastPointerPosition.x - viewPos.x;
-        this.pointerAnchor.y = this.lastPointerPosition.y - viewPos.y;
-
         this.furnitureSelectedRotation = palcement.rotation;
+
+        const centerGridPos = getFootprintCenter(this.furnitures[index], new Vector2(), palcement.rotation);
+        this.pointerAnchor.x = -palcement.position.x - centerGridPos.x + mouseGridPos.x;
+        this.pointerAnchor.y = -palcement.position.y - centerGridPos.y + mouseGridPos.y;
+        
         this.removeFurniture(index);
         this.furnitureSelected = index;
     }
@@ -383,12 +367,16 @@ export default class GameLevel {
       } else {
           this.furnitureSelected = index;
           this.furnitureSelectedRotation = 0;
-          this.furnitureSelectedPosition.x = this.lastPointerPosition.x;
-          this.furnitureSelectedPosition.y = this.lastPointerPosition.y;
+          this.furnitureSelectedViewPosition.x = this.lastPointerPosition.x;
+          this.furnitureSelectedViewPosition.y = this.lastPointerPosition.y;
           this.furnitureSelectedState = SelectedFurnitureState.New;
       }
-      this.furnitureDrag = true;
-      this.pointerAnchor = new Vector2();
+
+      if (index >= 0) {
+        this.furnitureDrag = true;
+        this.pointerAnchor.x = 0;
+        this.pointerAnchor.y = 0;
+      }
     }
 
     public canSubmit() {
@@ -443,6 +431,24 @@ export default class GameLevel {
     public furnitureSprite() {
       if (this.furnitureSelected < 0) return null;
       return this.furnitureView[this.furnitureSelected].currentSprite();
+    }
+
+    public rotateCameraRight() {
+      this.camera.rotation = (this.camera.rotation + 90) % 360 as Rotation;
+      this.updateViewPort();
+
+      const placedItems = [...this.furniturePlaced.getAll()];
+      this.furniturePlaced.clear();
+      placedItems.forEach((item) => this.furniturePlaced.add(item.key, item.value));
+    }
+
+    public rotateCameraLeft() {
+      this.camera.rotation = (360 + this.camera.rotation - 90) % 360 as Rotation;
+      this.updateViewPort();
+
+      const placedItems = [...this.furniturePlaced.getAll()];
+      this.furniturePlaced.clear();
+      placedItems.forEach((item) => this.furniturePlaced.add(item.key, item.value));
     }
 
     public destroy() {

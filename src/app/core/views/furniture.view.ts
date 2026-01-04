@@ -1,17 +1,9 @@
-import { Furniture, Placement, Ref } from "../game.model";
-import { isoGridToWorld } from "../math.helper";
+import { Camera, Furniture, Placement, Ref } from "../game.model";
+import { isoGridToView } from "../math.helper";
 import * as PIXI from 'pixi.js';
 import BaseView from "./base.view";
+import { getFootprintCenter } from "../furniture-placement.helper";
 
-// const halfw = spriteSrc.width * scale * 0.5;
-// const halfh = spriteSrc.height * scale * 0.5;
-// const points = [
-//     new PIXI.Point(-halfw, -halfh),
-//     new PIXI.Point(halfw, -halfh),
-//     new PIXI.Point(halfw, halfh),
-//     new PIXI.Point(-halfw, halfh)
-// ];
-// sprite.hitArea = new PIXI.Polygon(points);
 
 export default class FurnitureView extends BaseView {
     public views: PIXI.Sprite[] = [];
@@ -21,11 +13,13 @@ export default class FurnitureView extends BaseView {
     private prevPlacement = new Placement();
     private prevTint = 0xffffff;
     private prevAlpha = 1;
+    private cameraVersion = -1;
 
     constructor(
         private model: Furniture,
         private tileWidth: Ref<number>,
-        private tileHeight: Ref<number>
+        private tileHeight: Ref<number>,
+        private camera: Camera
     ) {
         super();
 
@@ -60,35 +54,39 @@ export default class FurnitureView extends BaseView {
 
         if (placement.equalTo(this.prevPlacement) &&
             this.prevTileWidth == this.tileWidth.value &&
-            this.prevTileHeight == this.tileHeight.value) {
+            this.prevTileHeight == this.tileHeight.value &&
+            this.cameraVersion == this.camera.version) {
             return;
         }
 
         console.log('update furniture');
 
-        const scale = this.tileWidth.value / 32;
+        const footprintCenter = getFootprintCenter(this.model, placement.position, placement.rotation);
+        const viewPos = isoGridToView(footprintCenter, this.camera, this.tileWidth.value, this.tileHeight.value);
 
         this.views.forEach((sprite, index) => {
             const src = this.model.sprite[index];
-            sprite.setSize(Math.abs(src.width) * scale, Math.abs(src.height) * scale);
+            sprite.setSize(Math.abs(src.width) * this.camera.scale, Math.abs(src.height) * this.camera.scale);
 
-            const worldPos = isoGridToWorld(placement.position, this.tileWidth.value, this.tileHeight.value);
-
-            sprite.position.set(worldPos.x + src.offsetX * scale, worldPos.y + src.offsetY * scale);
+            sprite.position.set(viewPos.x + src.offsetX * this.camera.scale, viewPos.y + src.offsetY * this.camera.scale);
         });
 
         this.prevTileWidth = this.tileWidth.value;
         this.prevTileHeight = this.tileHeight.value;
         placement.copyTo(this.prevPlacement);
+        this.cameraVersion = this.camera.version;
     }
 
     override draw(container: PIXI.Container) {
         this.container.removeChildren();
-        this.container.addChild(this.views[this.prevPlacement.rotation / 90]);
+        
+        const viewAngle = (this.prevPlacement.rotation + this.camera.rotation) % 360;
+        this.container.addChild(this.views[viewAngle / 90]);
         super.draw(container);
     }
 
     public currentSprite() {
-        return this.model.sprite[this.prevPlacement.rotation / 90];
+        const viewAngle = (this.prevPlacement.rotation + this.camera.rotation) % 360;
+        return this.model.sprite[viewAngle / 90];
     }
 }

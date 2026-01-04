@@ -64,29 +64,29 @@
           "name": "table",
           "width": 112,
           "height": 66,
-          "offsetX": 1,
-          "offsetY": -6
+          "offsetX": -1,
+          "offsetY": -14
         },
         {
           "name": "table",
           "width": -112,
           "height": 66,
           "offsetX": -1,
-          "offsetY": -6
+          "offsetY": -14
         },
         {
           "name": "table_back",
           "width": 112,
           "height": 66,
           "offsetX": -1,
-          "offsetY": -6
+          "offsetY": -14
         },
         {
           "name": "table_back",
           "width": -112,
           "height": 66,
-          "offsetX": -4,
-          "offsetY": -5
+          "offsetX": -1,
+          "offsetY": -14
         }
       ],
       "footprint": [
@@ -180,29 +180,29 @@
           "name": "bath",
           "width": 90,
           "height": 82,
-          "offsetX": 0,
-          "offsetY": -6
+          "offsetX": 1,
+          "offsetY": -14
         },
         {
           "name": "bath",
           "width": -90,
           "height": 82,
-          "offsetX": 0,
-          "offsetY": -6
+          "offsetX": 1,
+          "offsetY": -14
         },
         {
           "name": "bath_back",
           "width": 90,
           "height": 82,
-          "offsetX": 0,
-          "offsetY": -6
+          "offsetX": 1,
+          "offsetY": -14
         },
         {
           "name": "bath_back",
           "width": -90,
           "height": 82,
-          "offsetX": 0,
-          "offsetY": -6
+          "offsetX": 1,
+          "offsetY": -14
         }
       ],
       "footprint": [
@@ -239,29 +239,29 @@
           "name": "mirror",
           "width": 46,
           "height": 81,
-          "offsetX": -6,
-          "offsetY": -19
+          "offsetX": 0,
+          "offsetY": -25
         },
         {
           "name": "mirror",
           "width": -46,
           "height": 81,
-          "offsetX": 8,
-          "offsetY": -20
+          "offsetX": 0,
+          "offsetY": -25
         },
         {
           "name": "mirror_back",
           "width": 46,
           "height": 81,
-          "offsetX": 10,
-          "offsetY": -12
+          "offsetX": 0,
+          "offsetY": -25
         },
         {
           "name": "mirror_back",
           "width": -46,
           "height": 81,
-          "offsetX": -12,
-          "offsetY": -12
+          "offsetX": 0,
+          "offsetY": -25
         }
       ],
       "footprint": [
@@ -294,29 +294,29 @@
           "name": "screen",
           "width": 80,
           "height": 90,
-          "offsetX": -2,
-          "offsetY": -20
+          "offsetX": 3,
+          "offsetY": -27
         },
         {
           "name": "screen",
           "width": -80,
           "height": 90,
-          "offsetX": -2,
-          "offsetY": -20
+          "offsetX": 3,
+          "offsetY": -27
         },
         {
           "name": "screen",
           "width": 80,
           "height": 90,
-          "offsetX": -2,
-          "offsetY": -20
+          "offsetX": 3,
+          "offsetY": -27
         },
         {
           "name": "screen",
           "width": -80,
           "height": 90,
-          "offsetX": -2,
-          "offsetY": -20
+          "offsetX": 3,
+          "offsetY": -27
         }
       ],
       "footprint": [
