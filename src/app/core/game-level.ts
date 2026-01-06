@@ -1,8 +1,8 @@
-import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, SortedList, GameLevelState, SelectedFurnitureState } from "./game.model";
+import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, OrderedList, GameLevelState, SelectedFurnitureState } from "./game.model";
 import { Grid } from "./grid";
 import { getAccessibilityCells, getFootprint, getFootprintCenter, isPlacementPossible, isPlacementValid } from "./furniture-placement.helper";
 import * as PIXI from 'pixi.js';
-import { gridPlacementCompare, isoGridToView, viewToIsoGridFloating } from "./math.helper";
+import { isoGridToView, rotateCoordinates, viewToIsoGridFloating } from "./math.helper";
 import FurnitureView from "./views/furniture.view";
 import RoomView from "./views/room.view";
 import FurniturePreviewView from "./views/furniture-preview.view";
@@ -31,7 +31,7 @@ export default class GameLevel {
     public room: Room | null = null;
 
     public furnitures: Furniture[] = [];
-    public furniturePlaced = new SortedList<number, Placement>(gridPlacementCompare(this.camera, this.furnitures));
+    public furniturePlaced = new OrderedList<number, Placement>();
     public furnituresRemain: number[] = [];
 
     public furnitureSelected: number = -1;
@@ -95,7 +95,7 @@ export default class GameLevel {
         });
       });
       this.furnitureSelectedView = new FurniturePreviewView(this.tileWidth, this.tileHeight, this.camera);
-      this.furniturePlaced = new SortedList<number, Placement>(gridPlacementCompare(this.camera, this.furnitures));
+      this.furniturePlaced = new OrderedList<number, Placement>();
 
       this.pathTracingAction = new ViewActionPathTracing({ time: 30, grid: this.grid, from: this.room?.entrance! });
       this.pathTracingAction.stop();
@@ -234,6 +234,7 @@ export default class GameLevel {
         this.grid.addFlag(GridCellState.FurnitureAccessibilityCell, accessibilityCells);
 
         this.furniturePlaced.add(index, new Placement(position, rotation));
+        this.furniturePlaced.sortTopologically(this.hasFurnitureEdge.bind(this));
         this.cameraShakeAction.reset();
 
         this.canSubmitSubject.next(this.canSubmit());
@@ -255,6 +256,7 @@ export default class GameLevel {
         this.grid.removeFlag(GridCellState.FurnitureAccessibilityCell, accessibilityCells);
 
         this.furniturePlaced.remove(index);
+        this.furniturePlaced.sortTopologically(this.hasFurnitureEdge.bind(this));
 
         this.canSubmitSubject.next(this.canSubmit());
     }
@@ -440,6 +442,7 @@ export default class GameLevel {
       const placedItems = [...this.furniturePlaced.getAll()];
       this.furniturePlaced.clear();
       placedItems.forEach((item) => this.furniturePlaced.add(item.key, item.value));
+      this.furniturePlaced.sortTopologically(this.hasFurnitureEdge.bind(this));
     }
 
     public rotateCameraLeft() {
@@ -449,6 +452,17 @@ export default class GameLevel {
       const placedItems = [...this.furniturePlaced.getAll()];
       this.furniturePlaced.clear();
       placedItems.forEach((item) => this.furniturePlaced.add(item.key, item.value));
+      this.furniturePlaced.sortTopologically(this.hasFurnitureEdge.bind(this));
+    }
+
+    private hasFurnitureEdge(a: {key: number; value: Placement; }, b: {key: number; value: Placement;}) {
+      const aFootprint = getFootprint(this.furnitures[a.key], a.value.position, a.value.rotation);
+      const bFootprint = getFootprint(this.furnitures[b.key], b.value.position, b.value.rotation);
+
+      return bFootprint.some(bcell => aFootprint.some(acell => {
+        const delta = rotateCoordinates(acell.x - bcell.x, acell.y - bcell.y, (360 - this.camera.rotation) as Rotation);
+        return delta.x <= 0 && delta.y <= 0;
+      }));
     }
 
     public destroy() {
