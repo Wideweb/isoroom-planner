@@ -43,10 +43,13 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   public game = new GameLevel();
 
+  public rulesExpaned = false;
+
   private pointerSelectionFurnitureIndex = -1;
   private pointerDownX = 0;
   private pointerDownY = 0;
   private isPointerDown = false;
+  private dragToolbar = false;
   private toolbarScrollLeft = 0;
 
   constructor(private dialog: MatDialog, private el: ElementRef) { }
@@ -77,7 +80,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
             this.game.select(this.pointerSelectionFurnitureIndex);
             this.pointerSelectionFurnitureIndex = -1;
           } 
-        } else {
+        } else if (this.dragToolbar) {
           // Scroll detected
           this.pointerSelectionFurnitureIndex = -1;
 
@@ -101,6 +104,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   @HostListener('window:pointerup', ['$event'])
   onPointerUp(event: PointerEvent) { 
     this.isPointerDown = false;
+    this.dragToolbar = false;
     this.pointerSelectionFurnitureIndex = -1;
 
     if (!this.pixiCanvas || !this.pixiCanvas.nativeElement) return;
@@ -122,6 +126,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
     if ((event.target as HTMLElement).closest('.toolbar')) {
       this.toolbarScrollLeft = this.el.nativeElement.querySelector('.toolbar__scroller').scrollLeft;
+      this.dragToolbar = true;
     } 
     else if ((event.target as HTMLElement).closest('.game-board')) {
       const rect = (this.pixiCanvas.nativeElement as any).getBoundingClientRect();
@@ -253,5 +258,9 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   isInsideToolbar(y: number) {
     const toolbarRect = this.el.nativeElement.querySelector('.toolbar').getBoundingClientRect();
     return y >= toolbarRect.top && y <= toolbarRect.bottom;
+  }
+
+  toggleRules() {
+    this.rulesExpaned = !this.rulesExpaned;
   }
 }
