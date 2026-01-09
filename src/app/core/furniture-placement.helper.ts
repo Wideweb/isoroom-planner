@@ -66,16 +66,37 @@ export const placeFurniture = (grid: Grid, item: Furniture, position: Vector2, r
 
 export const getFootprint = (item: Furniture, position: Vector2, rotation: Rotation): Vector2[] => {
     const cells: Vector2[] = [];
-    const footprint = item.footprint[rotation / 90];
+    const footprint = item.footprint;
     const footprintOrigin = getFootprintOrigin(item, rotation);
 
     for (let i = 0; i < footprint.length; i++) {
         for (let j = 0; j < footprint[i].length; j++) {
-            const footprintCell =  footprint[i][j];
-            if (footprintCell == 1 || footprintCell == 2) {
-                const x = position.x + i - footprintOrigin.x;
-                const y = position.y + j - footprintOrigin.y;
+            const footprintCell = footprint[i][j];
+            if (footprintCell == 1) {
 
+                let x = i;
+                let y = j;
+
+                if (rotation == 90)
+                {
+                    x = j;
+                    y = i;
+                }
+                else if (rotation == 180)
+                {
+                    x = footprint.length - i - 1;
+                    y = footprint[i].length - j - 1;
+                }
+                else if (rotation == 270)
+                {
+                    x = footprint[i].length - j - 1;
+                    y = footprint.length - i - 1;
+                }
+
+                x -= footprintOrigin.x;
+                y -= footprintOrigin.y;
+                x += position.x;
+                y += position.y;
                 cells.push({ x, y });
             }
         }
@@ -84,15 +105,34 @@ export const getFootprint = (item: Furniture, position: Vector2, rotation: Rotat
 }
 
 export const getFootprintOrigin = (item: Furniture, rotation: Rotation): Vector2 => {
-    const footprint = item.footprint[rotation / 90];
+    const footprint = item.footprint;
     const origin = new Vector2(9999, 9999);
 
     for (let i = 0; i < footprint.length; i++) {
         for (let j = 0; j < footprint[i].length; j++) {
-            const footprintCell =  footprint[i][j];
-            if (footprintCell == 1 || footprintCell == 2) {
-                origin.x = Math.min(origin.x, i);
-                origin.y = Math.min(origin.y, j);
+            let x = i;
+            let y = j;
+
+            if (rotation == 90)
+            {
+                x = j;
+                y = i;
+            }
+            else if (rotation == 180)
+            {
+                x = footprint.length - i - 1;
+                y = footprint[i].length - j - 1;
+            }
+            else if (rotation == 270)
+            {
+                x = footprint[i].length - j - 1;
+                y = footprint.length - i - 1;
+            }
+
+            const footprintCell = footprint[i][j];
+            if (footprintCell == 1) {
+                origin.x = Math.min(origin.x, x);
+                origin.y = Math.min(origin.y, y);
             }
         }
     }
@@ -115,16 +155,37 @@ export const getAccessibilityCells = (item: Furniture, position: Vector2, rotati
     if (!item.requiresAccess) return [];
 
     const cells: Vector2[] = [];
-    const footprint = item.footprint[rotation / 90];
+    const footprint = item.footprint;
     const footprintOrigin = getFootprintOrigin(item, rotation);
 
     for (let i = 0; i < footprint.length; i++) {
         for (let j = 0; j < footprint[i].length; j++) {
             const footprintCell = footprint[i][j];
             if (footprintCell == 5) {
-                const x = position.x + i - footprintOrigin.x;
-                const y = position.y + j - footprintOrigin.y;
 
+                let x = i;
+                let y = j;
+
+                if (rotation == 90)
+                {
+                    x = j;
+                    y = i;
+                }
+                else if (rotation == 180)
+                {
+                    x = footprint.length - i - 1;
+                    y = footprint[i].length - j - 1;
+                }
+                else if (rotation == 270)
+                {
+                    x = footprint[i].length - j - 1;
+                    y = footprint.length - i - 1;
+                }
+
+                x -= footprintOrigin.x;
+                y -= footprintOrigin.y;
+                x += position.x;
+                y += position.y;
                 cells.push({ x, y });
             }
         }

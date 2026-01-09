@@ -1,4 +1,3 @@
-
 export type Rotation = 0 | 90 | 180 | 270;
 
 export class Ref<T> { 
@@ -47,7 +46,8 @@ export interface Furniture {
   name: string;
   requiresAccess: boolean;
   sprite: SpriteSrc[];
-  footprint: number[][][]
+  footprint: number[][];
+  rules: number[];
 }
 
 export interface Room {

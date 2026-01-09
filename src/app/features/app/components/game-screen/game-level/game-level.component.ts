@@ -263,4 +263,12 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   toggleRules() {
     this.rulesExpaned = !this.rulesExpaned;
   }
+
+  get rules() {
+    return this.game.furnituresPlacementRules[this.game.furnitureSelected];
+  }
+
+  get rulesCompleted() {
+    return this.game.furnituresPlacementRules[this.game.furnitureSelected].filter(it => it.isValid);
+  }
 }

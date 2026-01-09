@@ -143,7 +143,6 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.25rem;
     background-color: $panel-glass;
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
@@ -163,6 +162,7 @@
 }
 
 .rules-summary {
+    margin: 0.25rem 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -175,6 +175,7 @@
 }
 
 .placement-rules {
+    margin: 0.25rem 0;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -193,7 +194,7 @@
 .rule-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
     padding: 0.5rem 0.75rem;
     background-color: rgba(128,128,128,0.1);
     border-radius: $radius-sm;

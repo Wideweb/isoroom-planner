@@ -58,7 +58,7 @@ export class Grid {
         });
     }
 
-    private inBounds(cell: Vector2) {
+    public inBounds(cell: Vector2) {
         return cell.x >= 0 && cell.x < this.width && cell.y >= 0 && cell.y < this.height;
     }
 }
