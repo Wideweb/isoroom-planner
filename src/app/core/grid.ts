@@ -61,4 +61,40 @@ export class Grid {
     public inBounds(cell: Vector2) {
         return cell.x >= 0 && cell.x < this.width && cell.y >= 0 && cell.y < this.height;
     }
+
+    public getCellsOnLine(from: Vector2, to: Vector2) {
+        const cells: GridCell[] = []
+
+        const dx = Math.abs(to.x - from.x);
+        const dy = Math.abs(to.y - from.y);
+
+        const sx = (from.x < to.x) ? 1 : -1;
+        const sy = (from.y < to.y) ? 1 : -1;
+        let err = dx - dy;
+
+        let x = from.x;
+        let y = from.y;
+
+        while (true) {
+            if (this.inBounds({ x, y })) {
+                cells.push(this.cells[y][x]);
+            }
+
+            if (x == to.x && y == to.y) {
+                break
+            }
+            
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy
+                x += sx
+            }
+            if (e2 < dx) {
+                err += dx
+                y += sy
+            }
+        }
+
+        return cells
+    }
 }

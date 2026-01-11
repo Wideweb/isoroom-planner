@@ -1,4 +1,4 @@
-import { Furniture, Placement } from "../game.model";
+import { Furniture, Placement, Room } from "../game.model";
 import { Grid } from "../grid";
 
 export abstract class PalcementRuleBaseValidator {
@@ -6,5 +6,5 @@ export abstract class PalcementRuleBaseValidator {
 
     public message: string = '';
 
-    public abstract validate(id: number, placement: Placement, grid: Grid, furnitures: Furniture[]): boolean;
+    public abstract validate(id: number, placement: Placement, grid: Grid, furnitures: Furniture[], room: Room): boolean;
 }

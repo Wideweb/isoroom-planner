@@ -1,5 +1,5 @@
 import { getFootprint } from "../furniture-placement.helper";
-import { Furniture, GridCellState, Placement, Vector2 } from "../game.model";
+import { Furniture, GridCellState, Placement, Room, Vector2 } from "../game.model";
 import { Grid } from "../grid";
 import { PalcementRuleBaseValidator } from "./base.rule-validator";
 
@@ -10,7 +10,7 @@ export class IsAgainstTheWallRuleValidator extends PalcementRuleBaseValidator {
         this.message = "is against the wall";
     }
 
-    public validate(id: number, placement: Placement, grid: Grid, furnitures: Furniture[]): boolean {
+    public validate(id: number, placement: Placement, grid: Grid, furnitures: Furniture[], room: Room): boolean {
         this.isValid = false;
 
         const footprint = getFootprint(furnitures[id], placement.position, placement.rotation);

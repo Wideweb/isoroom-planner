@@ -194,7 +194,7 @@ export default class GameLevel {
           placement.copyTo(this.furnitureSelectedPlacement);
           
           if (isValid) {
-            this.furnituresPlacementRules[this.furnitureSelected].forEach(rule => rule.validate(this.furnitureSelected, placement, this.grid, this.furnitures));
+            this.furnituresPlacementRules[this.furnitureSelected].forEach(rule => rule.validate(this.furnitureSelected, placement, this.grid, this.furnitures, this.room!));
           } else {
             this.furnituresPlacementRules[this.furnitureSelected].forEach(rule => (rule.isValid = false));
           }
@@ -212,7 +212,7 @@ export default class GameLevel {
 
       if (this.furnituresPlacementRulesDirty) {
         this.furniturePlaced.getAll().forEach(item => {
-          this.furnituresPlacementRules[item.key].forEach(rule => rule.validate(item.key, item.value, this.grid, this.furnitures));
+          this.furnituresPlacementRules[item.key].forEach(rule => rule.validate(item.key, item.value, this.grid, this.furnitures, this.room!));
         });
         this.furnituresPlacementRulesDirty = false;
       }
