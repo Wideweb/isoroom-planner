@@ -46,6 +46,11 @@
     align-items: center;
     justify-content: center;
     color: $accent;
+
+    svg {
+        width: 36px;
+        height: 36px;
+    }
 }
 
 .category-card__info {
