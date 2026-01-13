@@ -54,7 +54,7 @@
     "bigtable": {
       "frame": { "x": 256, "y": 768, "w": 384, "h": 256 }
     },
-    "small_table": {
+    "coffee_table": {
       "frame": { "x": 640, "y": 768, "w": 256, "h": 256 }
     },
     "flower_showcase": {

@@ -1,4 +1,4 @@
-import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, OrderedList, GameLevelState, SelectedFurnitureState } from "./game.model";
+import { Furniture, Rotation, Vector2, Placement, GridCellState, Camera, GameLevelData, Room, Ref, OrderedList, GameLevelState, SelectedFurnitureState, FurnitureCategory, GroupCollection } from "./game.model";
 import { Grid } from "./grid";
 import { getAccessibilityCells, getFootprint, getFootprintCenter, isPlacementPossible, isPlacementValid } from "./furniture-placement.helper";
 import * as PIXI from 'pixi.js';
@@ -16,6 +16,13 @@ import { createPlacementRuleValidator } from "./placement-rule-validators/rule-v
 
 export default class GameLevel {
     public gameState: GameLevelState = GameLevelState.None;
+
+    public level = 1;
+    public globalScore: number = 0;
+    public score: number = 0;
+    public nextLevelScore: number = 50;
+    public moves: number = 0;
+    public maxMoves: number = 10;
 
     public app = new PIXI.Application();
     public layer0 = new PIXI.Container();
@@ -35,6 +42,8 @@ export default class GameLevel {
     public furnitures: Furniture[] = [];
     public furniturePlaced = new OrderedList<number, Placement>();
     public furnituresRemain: number[] = [];
+    public furnituresAvailable: number[] = [];
+    public furnituresPool = new GroupCollection<number>(FurnitureCategory.Max);
     public furnituresPlacementRules: PalcementRuleBaseValidator[][] = [];
     public furnituresPlacementRulesDirty = false;
 
@@ -43,6 +52,7 @@ export default class GameLevel {
     public furnitureSelectedViewPosition = new Vector2();
     public furnitureSelectedGridPosition = new Vector2();
     public furnitureSelectedPlacement = new Placement();
+    public furnitureSelectedPlacementOld = new Placement();
     public furnitureDrag = false;
     public furnitureSelectedState: number = SelectedFurnitureState.None;
 
@@ -102,9 +112,14 @@ export default class GameLevel {
         this.furnituresPlacementRules.push(
           model.rules.map(ruleId => createPlacementRuleValidator(ruleId)!)
         );
+
+        this.furnituresPool.add(model.category, index);
       });
       this.furnitureSelectedView = new FurniturePreviewView(this.tileWidth, this.tileHeight, this.camera);
       this.furniturePlaced = new OrderedList<number, Placement>();
+
+      //const topGroup = this.furnituresPool.getSortedGroups()[0];
+      //this.furnituresPool.takeFromGroup(topGroup.group, 3).forEach(it => this.furnituresAvailable.push(it));
 
       this.pathTracingAction = new ViewActionPathTracing({ time: 30, grid: this.grid, from: this.room?.entrance! });
       this.pathTracingAction.stop();
@@ -142,14 +157,14 @@ export default class GameLevel {
       this.lastPointerPosition.x = x;
       this.lastPointerPosition.y = y;
 
-      if (this.furnitureSelectedState & SelectedFurnitureState.New) {
-        this.tryPlaceSelectedFurniture();
-      } else if (this.furnitureSelectedState & SelectedFurnitureState.PickedUp) {
+      if (this.furnitureSelectedState & SelectedFurnitureState.PickedUp) {
         if (this.furnitureSelectedState & SelectedFurnitureState.FirstClickHandled) {
           this.tryPlaceSelectedFurniture();
         } else {
           this.furnitureSelectedState |= SelectedFurnitureState.FirstClickHandled;
         }
+      } else if (this.furnitureSelectedState & SelectedFurnitureState.New) {
+        this.tryPlaceSelectedFurniture();
       }
     }
 
@@ -208,7 +223,9 @@ export default class GameLevel {
         this.furnitureSelectedView!.furnitureView = null;
       }
 
-      this.furnituresRemain = this.furnitures.map((it, index) => index).filter(index => !this.furniturePlaced.hasKey(index) && index != this.furnitureSelected);
+      this.furnituresRemain = this.furnitures
+        .map((it, index) => index)
+        .filter(index => !this.furniturePlaced.hasKey(index) && index != this.furnitureSelected && this.furnituresAvailable.includes(index));
 
       if (this.furnituresPlacementRulesDirty) {
         this.furniturePlaced.getAll().forEach(item => {
@@ -245,10 +262,11 @@ export default class GameLevel {
       if (isValid) {          
         this.placeFurniture(this.furnitureSelected, placement.position, placement.rotation);
         this.furnitureSelected = -1;
+        this.furnitureSelectedState = SelectedFurnitureState.None;
       }
     }
 
-    public placeFurniture(index: number, position: Vector2, rotation: Rotation): void {
+    public placeFurniture(index: number, position: Vector2, rotation: Rotation, updateScore = true): void {
         const furniture = this.furnitures[index];
 
         const footprint = getFootprint(furniture, position, rotation);
@@ -260,14 +278,23 @@ export default class GameLevel {
         this.grid.place(index, accessibilityCells);
         this.grid.addFlag(GridCellState.FurnitureAccessibilityCell, accessibilityCells);
 
-        this.furniturePlaced.add(index, new Placement(position, rotation));
+        const placement = new Placement(position, rotation);
+        this.furniturePlaced.add(index, placement);
         this.furniturePlaced.sortTopologically(this.hasFurnitureEdge.bind(this));
         this.cameraShakeAction.reset();
+
+        if (!this.furnitureSelectedPlacementOld.equalTo(placement)) {
+          this.moves++;
+        }
+
+        if (updateScore) {
+          this.updateScore();
+        }
 
         this.canSubmitSubject.next(this.canSubmit());
     }
 
-    public removeFurniture(index: number) {
+    public removeFurniture(index: number, updateScore = true) {
         const furniture = this.furnitures[index];
         const placement = this.furniturePlaced.getValue(index);
 
@@ -284,6 +311,10 @@ export default class GameLevel {
 
         this.furniturePlaced.remove(index);
         this.furniturePlaced.sortTopologically(this.hasFurnitureEdge.bind(this));
+
+        if (updateScore) {
+          this.updateScore();
+        }
 
         this.canSubmitSubject.next(this.canSubmit());
     }
@@ -348,7 +379,8 @@ export default class GameLevel {
             this.tryPlaceSelectedFurniture();
         }
 
-        this.furnitureSelectedState = SelectedFurnitureState.PickedUp;
+        const isNew = this.furnitureSelectedState & SelectedFurnitureState.New;
+        this.furnitureSelectedState = SelectedFurnitureState.PickedUp | (isNew ? SelectedFurnitureState.New : 0);
         this.furnitureDrag = true;
 
         const mouseGridPos = viewToIsoGridFloating(this.lastPointerPosition, this.camera, this.tileWidth.value, this.tileHeight.value);
@@ -373,6 +405,7 @@ export default class GameLevel {
         }
 
         this.furnitureSelectedRotation = palcement.rotation;
+        palcement.copyTo(this.furnitureSelectedPlacementOld);
 
         const centerGridPos = getFootprintCenter(this.furnitures[index], new Vector2(), palcement.rotation);
         this.pointerAnchor.x = -palcement.position.x - centerGridPos.x + mouseGridPos.x;
@@ -399,6 +432,8 @@ export default class GameLevel {
           this.furnitureSelectedViewPosition.x = this.lastPointerPosition.x;
           this.furnitureSelectedViewPosition.y = this.lastPointerPosition.y;
           this.furnitureSelectedState = SelectedFurnitureState.New;
+          this.furnitureSelectedPlacementOld.position.x = -1;
+          this.furnitureSelectedPlacementOld.position.y = -1;
       }
 
       if (index >= 0) {
@@ -490,6 +525,39 @@ export default class GameLevel {
         const delta = rotateCoordinates(acell.x - bcell.x, acell.y - bcell.y, (360 - this.camera.rotation) as Rotation);
         return delta.x <= 0 && delta.y <= 0;
       }));
+    }
+
+    public updateScore() {
+      let score = this.furniturePlaced.getAll().length * 10;
+      score += this.furniturePlaced
+        .getAll()
+        .flatMap(it => this.furnituresPlacementRules[it.key])
+        .filter(it => it.isValid)
+        .length * 20;
+
+        this.score = this.globalScore + score;
+
+        if (this.score >= this.nextLevelScore) {
+          this.globalScore = this.score;
+          this.moves = 0;
+          this.nextLevelScore *= 2;
+          this.level++;
+
+          this.furnituresAvailable = this.furnituresAvailable.filter(it => !this.furniturePlaced.hasKey(it));
+          this.furniturePlaced.getAll().map(it => it.key).forEach(id => this.removeFurniture(id, false));
+          this.furnitureSelected = -1;
+          this.furnitureSelectedRotation = 0;
+
+          this.pathTracingAction?.reset();
+          this.pathTracingAction?.stop();
+          this.pathView!.cells.splice(0, this.pathView?.cells.length);
+          this.pathView!.isDirty = true;
+
+          this.gameState = GameLevelState.Appearing;
+          this.roomFadeAction.reset();
+          this.roomFadeAction.start();
+          this.gameState = GameLevelState.FurniturePlacing;
+        }
     }
 
     public destroy() {

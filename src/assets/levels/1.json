@@ -58,6 +58,7 @@
     {
       "id": 1,
       "name": "Table",
+      "category": 3,
       "requiresAccess": true,
       "sprite": [
         {
@@ -99,6 +100,7 @@
     {
       "id": 4,
       "name": "Plant",
+      "category": 5,
       "requiresAccess": true,
       "sprite": [
         {
@@ -140,6 +142,7 @@
     {
       "id": 5,
       "name": "Bath",
+      "category": 2,
       "requiresAccess": true,
       "sprite": [
         {
@@ -181,6 +184,7 @@
     {
       "id": 2,
       "name": "Mirror",
+      "category": 4,
       "requiresAccess": true,
       "sprite": [
         {
@@ -222,6 +226,7 @@
     {
       "id": 5,
       "name": "Screen",
+      "category": 2,
       "requiresAccess": true,
       "sprite": [
         {
@@ -264,6 +269,7 @@
     {
       "id": 6,
       "name": "Sink",
+      "category": 2,
       "requiresAccess": true,
       "sprite": [
         {
@@ -304,6 +310,7 @@
     {
       "id": 7,
       "name": "Chair",
+      "category": 3,
       "requiresAccess": true,
       "sprite": [
         {
@@ -333,6 +340,262 @@
           "height": 56,
           "offsetX": -1,
           "offsetY": -17
+        }
+      ],
+      "footprint": [
+        [0, 5, 0],
+        [5, 1, 5],
+        [0, 5, 0]
+      ],
+      "rules": []
+    },
+
+    {
+      "id": 8,
+      "name": "Clock",
+      "category": 3,
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "clock",
+          "width": 46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -31
+        },
+        {
+          "name": "clock",
+          "width": -46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -31
+        },
+        {
+          "name": "clock_back",
+          "width": 46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -31
+        },
+        {
+          "name": "clock_back",
+          "width": -46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -31
+        }
+      ],
+      "footprint": [
+        [1, 1],
+        [1, 1],
+        [5, 5]
+      ],
+      "rules": []
+    },
+    {
+      "id": 9,
+      "name": "Lamp",
+      "category": 4,
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "lamp",
+          "width": 46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -34
+        },
+        {
+          "name": "lamp",
+          "width": -46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -34
+        },
+        {
+          "name": "lamp",
+          "width": 46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -34
+        },
+        {
+          "name": "lamp",
+          "width": -46,
+          "height": 94,
+          "offsetX": 0,
+          "offsetY": -34
+        }
+      ],
+      "footprint": [
+        [0, 5, 0],
+        [5, 1, 5],
+        [0, 5, 0]
+      ],
+      "rules": []
+    },
+    {
+      "id": 5,
+      "name": "Bookshelf",
+      "category": 3,
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "bookshelf",
+          "width": 120,
+          "height": 110,
+          "offsetX": 0,
+          "offsetY": -32
+        },
+        {
+          "name": "bookshelf",
+          "width": -120,
+          "height": 110,
+          "offsetX": 0,
+          "offsetY": -32
+        },
+        {
+          "name": "bookshelf_back",
+          "width": 120,
+          "height": 110,
+          "offsetX": 0,
+          "offsetY": -33
+        },
+        {
+          "name": "bookshelf_back",
+          "width": -120,
+          "height": 110,
+          "offsetX": 0,
+          "offsetY": -33
+        }
+      ],
+      "footprint": [
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+        [5, 5, 5, 5]
+      ],
+      "rules": []
+    },
+    {
+      "id": 9,
+      "name": "Big Table",
+      "category": 3,
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "bigtable",
+          "width": 112,
+          "height": 66,
+          "offsetX": -2,
+          "offsetY": -12
+        },
+        {
+          "name": "bigtable",
+          "width": -112,
+          "height": 66,
+          "offsetX": 2,
+          "offsetY": -12
+        },
+        {
+          "name": "bigtable",
+          "width": 112,
+          "height": 66,
+          "offsetX": -2,
+          "offsetY": -12
+        },
+        {
+          "name": "bigtable",
+          "width": -112,
+          "height": 66,
+          "offsetX": 2,
+          "offsetY": -12
+        }
+      ],
+      "footprint": [
+        [0, 5, 5, 5, 0],
+        [5, 1, 1, 1, 5],
+        [5, 1, 1, 1, 5],
+        [5, 1, 1, 1, 5],
+        [0, 5, 5, 5, 0]
+      ],
+      "rules": []
+    },
+    {
+      "id": 10,
+      "name": "Coffee Table",
+      "category": 0,
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "coffee_table",
+          "width": 50,
+          "height": 46,
+          "offsetX": 0,
+          "offsetY": -15
+        },
+        {
+          "name": "coffee_table",
+          "width": -50,
+          "height": 46,
+          "offsetX": 0,
+          "offsetY": -15
+        },
+        {
+          "name": "coffee_table",
+          "width": 50,
+          "height": 46,
+          "offsetX": 0,
+          "offsetY": -15
+        },
+        {
+          "name": "coffee_table",
+          "width": -50,
+          "height": 46,
+          "offsetX": 0,
+          "offsetY": -15
+        }
+      ],
+      "footprint": [
+        [5, 5, 5, 5],
+        [5, 1, 1, 5],
+        [5, 1, 1, 5],
+        [5, 5, 5, 5]
+      ],
+      "rules": []
+    },
+    {
+      "id": 11,
+      "name": "Flower Showcase",
+      "category": 5,
+      "requiresAccess": true,
+      "sprite": [
+        {
+          "name": "flower_showcase",
+          "width": 36,
+          "height": 70,
+          "offsetX": 0,
+          "offsetY": -29
+        },
+        {
+          "name": "flower_showcase",
+          "width": -36,
+          "height": 70,
+          "offsetX": 0,
+          "offsetY": -29
+        },
+        {
+          "name": "flower_showcase",
+          "width": 36,
+          "height": 70,
+          "offsetX": 0,
+          "offsetY": -29
+        },
+        {
+          "name": "flower_showcase",
+          "width": -36,
+          "height": 70,
+          "offsetX": 0,
+          "offsetY": -29
         }
       ],
       "footprint": [

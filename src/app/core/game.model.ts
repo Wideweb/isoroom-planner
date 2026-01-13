@@ -48,6 +48,17 @@ export interface Furniture {
   sprite: SpriteSrc[];
   footprint: number[][];
   rules: number[];
+  category: number;
+}
+
+export enum FurnitureCategory {
+  LivingRoom = 0,
+  Kitchen = 1,
+  Bathroom = 2,
+  Office = 3,
+  Bedroom = 4,
+  Decor = 5,
+  Max = 6,
 }
 
 export interface Room {
@@ -254,4 +265,28 @@ export function topologicalSort<T>(
   }
 
   return result.reverse();
+}
+
+export class GroupCollection<T> {
+  public groups: T[][];
+
+  constructor(size: number) {
+    this.groups = Array.from({ length: size }, () => []);
+  }
+
+  add(groupId: number, item: T): void {
+    this.groups[groupId].push(item);
+  }
+
+  takeFromGroup(groupId: number, count: number): T[] {
+    const group = this.groups[groupId];
+    const taken = group.splice(0, count);
+    return taken;
+  }
+
+  getSortedGroups(): {group: number, items: T[]}[] {
+    return this.groups
+      .map((items, idx) => ({group: idx, items}))
+      .sort((a, b) => b.items.length - a.items.length);
+  }
 }

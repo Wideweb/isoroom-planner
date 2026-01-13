@@ -113,6 +113,10 @@ a {
     color: inherit;
 }
 
+p {
+    margin: 0;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -197,6 +201,12 @@ a {
     padding: 1rem 2rem;
     font-size: 1.1rem;
     border-radius: $radius-lg;
+}
+
+.button--icon-only {
+    padding: 0.6rem;
+    width: 44px;
+    height: 44px;
 }
 
 .button__icon {

@@ -7,6 +7,10 @@
     overflow: hidden;
 }
 
+.header__title {
+    font-size: 1rem;
+}
+
 .game-board {
     transition: opacity $dur-slow $easing-soft;
     transition-delay: 250ms;
@@ -64,11 +68,44 @@
     }
 }
 
+.header__left-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 1;
+}
+
+.header__gamestate {
+    display: flex;
+    gap: 16px;
+}
+
+.state-display {
+    // background: $panel-glass;
+    padding: 0px 16px;
+    // border-radius: $radius-md;
+    // border: 1px solid $tile-border;
+    text-align: left;
+    // min-width: 90px;
+}
+
+.state-display__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $text-secondary;
+}
+
+.state-display__value {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
 .toolbar {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
+    height: 132px;
     background-color: $panel-glass;
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
@@ -134,6 +171,18 @@
 .item-card__title { font-size: 0.8rem; font-weight: 600; margin: 0; line-height: 1.2; }
 .item-card__desc { font-size: 0.7rem; color: $text-secondary; margin: 0; }
 
+
+.item-card.item-card__replenish {
+    background-color: $accent;
+
+    .item-card__thumbnail {
+        background-color: none;
+        background: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
 
 .placement-actions {
     position: absolute;
@@ -280,7 +329,7 @@
 
 .view-actions {
     position: absolute;
-    top: calc(105px + env(safe-area-inset-top, 0));
+    top: calc(86px + env(safe-area-inset-top, 0));
     
     width: 100%;
     display: flex;
@@ -288,4 +337,9 @@
     align-items: center;
     box-sizing: border-box;
     gap: 20px;
+}
+
+.menu-button {
+    background: none;
+    background-color: none;
 }

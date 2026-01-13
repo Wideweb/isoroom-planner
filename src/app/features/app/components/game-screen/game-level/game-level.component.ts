@@ -1,12 +1,13 @@
 import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, HostListener, Input, Output, EventEmitter } from '@angular/core';
 
-import { GameLevelData } from '../../../../../core/game.model';
+import { FurnitureCategory, GameLevelData, SelectedFurnitureState } from '../../../../../core/game.model';
 import GameLevel from '../../../../../core/game-level';
 import { firstValueFrom } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { FailDialogComponent, FailDialogModel, FailtDialogSelection } from '../fail-dialog/fail-dialog.component';
 import { GameLevelSubmitResultDto } from '../../../models/game-progress.model';
 import { SuccessDialogComponent, SuccessDialogModel, SuccessDialogSelection } from '../success-dialog/success-dialog.component';
+import { ReplenishDeckDialogComponent, ReplenishDeckDialogModel } from '../replenish-deck-dialog/replenish-deck-dialog.component';
 
 @Component({
   selector: 'game-level',
@@ -209,6 +210,56 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       } else {
         this.game.continuePlacing();
       }
+  }
+
+  public isReplenishShown() {
+    if(!this.game.furnituresPool.groups.some(items => items.length > 0)) return false;
+
+    if (this.game.furnituresRemain.length < 2) return true;
+
+    if (this.game.furnituresRemain.length < 3 && !(this.game.furnitureSelectedState & SelectedFurnitureState.New)) return true;
+
+    return false;
+  }
+
+  async replenishDeck() {
+    const groups = this.game.furnituresPool.getSortedGroups().filter(it => it.items.length > 0);
+
+    const CATEGORY_NAME = [
+      'Living Room',
+      'Kitchen',
+      'Bathroom',
+      'Office',
+      'Bedroom',
+      'Decor'
+    ];
+
+    const CATEGORY_DESC = [
+      'Beds, dresser, mirrors',
+      'Stoves, tables, chairs',
+      'Bath, sink, toilet',
+      'Tables, chairs, bookshelf',
+      'Beds, wardrobes, dressers',
+      'Plants, carpets, lamps'
+    ];
+
+    const dialog$ = this.dialog
+      .open<ReplenishDeckDialogComponent, ReplenishDeckDialogModel, any>(ReplenishDeckDialogComponent, { 
+        disableClose: true,
+        data: { 
+          categories: groups.slice(0, 3).map(it => ({
+            id: it.group,
+            name: CATEGORY_NAME[it.group],
+            desc: CATEGORY_DESC[it.group],
+            icon: it.group
+          }))
+        }
+      })
+      .afterClosed();
+
+      const selectedGroup = await firstValueFrom(dialog$);
+      const newItems = this.game.furnituresPool.takeFromGroup(selectedGroup, 3);
+      newItems.forEach(it => this.game.furnituresAvailable.push(it));
   }
 
   toLevels() {
