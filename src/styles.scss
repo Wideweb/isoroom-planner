@@ -51,6 +51,11 @@
     to { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes pulse-success {
+    0%, 100% { box-shadow: 0 0 0 0px $success-weak; }
+    50% { box-shadow: 0 0 0 8px $success-weak; }
+}
+
 
 /* 
 * =============================================
@@ -250,7 +255,6 @@ p {
 .mat-mdc-dialog-container {
     background-color: $panel-glass;
     border-radius: $radius-lg;
-    padding: 2rem;
     width: 100%;
     max-width: 350px;
     display: flex;

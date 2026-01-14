@@ -10,16 +10,25 @@
             </div>
             <div class="header__gamestate">
                 <div class="state-display">
-                    <div class="state-display__label">score</div>
-                    <div class="state-display__value">{{this.game.score}} / {{this.game.nextLevelScore}}</div>
+                    <div class="state-display__container">
+                        <div class="state-display__label">score</div>
+                        <div class="state-display__value">{{this.game.score}} / {{this.game.nextLevelScore}}</div>
+                    </div>
                 </div>
                 <div class="state-display">
-                    <div class="state-display__label">moves</div>
-                    <div class="state-display__value">{{this.game.maxMoves - this.game.moves}}</div>
+                    <div class="state-display__container">
+                        <div class="state-display__label">moves</div>
+                        <div class="state-display__value">{{this.game.maxMoves - this.game.moves}}</div>
+                    </div>
                 </div>
                 <div class="state-display">
-                    <div class="state-display__label">level</div>
-                    <div class="state-display__value">{{this.game.level}}</div>
+                    <div class="state-display__container" *ngIf="!isNextLevelAvailable()">
+                        <div class="state-display__label">level</div>
+                        <div class="state-display__value">{{this.game.level}}</div>
+                    </div>
+                    <div class="state-display__container" *ngIf="isNextLevelAvailable()">
+                        <a class="button-link next-level-btn is-glowing" (click)="toNextLevel()">Next &#8594;</a>
+                    </div>
                 </div>
             </div>
         </header>
@@ -198,4 +207,12 @@
             <button (click)="tryAgain()">Try Again</button>
         </div>
     </div> -->
+</div>
+
+<div class="fireworks-celebration" [ngClass]="{'is-active': isNextLevelAvailable()}">
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
 </div>

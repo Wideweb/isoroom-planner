@@ -536,28 +536,32 @@ export default class GameLevel {
         .length * 20;
 
         this.score = this.globalScore + score;
+    }
 
-        if (this.score >= this.nextLevelScore) {
-          this.globalScore = this.score;
-          this.moves = 0;
-          this.nextLevelScore *= 2;
-          this.level++;
-
-          this.furnituresAvailable = this.furnituresAvailable.filter(it => !this.furniturePlaced.hasKey(it));
-          this.furniturePlaced.getAll().map(it => it.key).forEach(id => this.removeFurniture(id, false));
-          this.furnitureSelected = -1;
-          this.furnitureSelectedRotation = 0;
-
-          this.pathTracingAction?.reset();
-          this.pathTracingAction?.stop();
-          this.pathView!.cells.splice(0, this.pathView?.cells.length);
-          this.pathView!.isDirty = true;
-
-          this.gameState = GameLevelState.Appearing;
-          this.roomFadeAction.reset();
-          this.roomFadeAction.start();
-          this.gameState = GameLevelState.FurniturePlacing;
+    public toNextLevel() {
+        if (this.score < this.nextLevelScore) {
+          return;
         }
+          
+        this.globalScore = this.score;
+        this.moves = 0;
+        this.nextLevelScore *= 2;
+        this.level++;
+
+        this.furnituresAvailable = this.furnituresAvailable.filter(it => !this.furniturePlaced.hasKey(it));
+        this.furniturePlaced.getAll().map(it => it.key).forEach(id => this.removeFurniture(id, false));
+        this.furnitureSelected = -1;
+        this.furnitureSelectedRotation = 0;
+
+        this.pathTracingAction?.reset();
+        this.pathTracingAction?.stop();
+        this.pathView!.cells.splice(0, this.pathView?.cells.length);
+        this.pathView!.isDirty = true;
+
+        this.gameState = GameLevelState.Appearing;
+        this.roomFadeAction.reset();
+        this.roomFadeAction.start();
+        this.gameState = GameLevelState.FurniturePlacing;
     }
 
     public destroy() {

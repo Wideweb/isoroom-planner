@@ -1,5 +1,11 @@
 @import 'common.scss';
 
+:host {
+    box-sizing: border-box;
+    padding: 2rem;
+    display: block;
+}
+
 .modal__title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -64,4 +70,35 @@
 .category-card__desc {
     font-size: 0.8rem;
     color: $text-secondary;
+}
+
+.close-btn {
+  position: absolute;   /* обычно ставят в углу модалки */
+  top: 20px;
+  right: 20px;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.close-btn::before,
+.close-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;           /* толщина линии */
+  height: 20px;         /* длина линии */
+  background-color: $text-secondary; /* цвет крестика */
+  transform-origin: center;
+}
+
+.close-btn::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close-btn::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }

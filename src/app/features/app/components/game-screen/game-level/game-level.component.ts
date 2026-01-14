@@ -75,7 +75,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       } else {
         const dx = event.clientX - this.pointerDownX;
         const dy = event.clientY - this.pointerDownY;
-        if (Math.abs(dy) > Math.abs(dx) * 0.5 && this.pointerSelectionFurnitureIndex >= 0) { 
+        if (Math.abs(dy) / Math.abs(dx) > 0.2 && this.pointerSelectionFurnitureIndex >= 0) { 
           if (!this.isInsideToolbar(event.clientY)) {
             // Drag detected 
             this.game.select(this.pointerSelectionFurnitureIndex);
@@ -258,8 +258,11 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       .afterClosed();
 
       const selectedGroup = await firstValueFrom(dialog$);
-      const newItems = this.game.furnituresPool.takeFromGroup(selectedGroup, 3);
-      newItems.forEach(it => this.game.furnituresAvailable.push(it));
+
+      if (selectedGroup >= 0) {
+        const newItems = this.game.furnituresPool.takeFromGroup(selectedGroup, 3);
+        newItems.forEach(it => this.game.furnituresAvailable.push(it));
+      }
   }
 
   toLevels() {
@@ -321,5 +324,13 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   get rulesCompleted() {
     return this.game.furnituresPlacementRules[this.game.furnitureSelected].filter(it => it.isValid);
+  }
+
+  isNextLevelAvailable() {
+    return this.game.score >= this.game.nextLevelScore;
+  }
+
+  toNextLevel() {
+    this.game.toNextLevel();
   }
 }

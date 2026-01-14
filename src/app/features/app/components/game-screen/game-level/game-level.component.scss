@@ -77,16 +77,18 @@
 
 .header__gamestate {
     display: flex;
-    gap: 16px;
+    flex-direction: row;
 }
 
 .state-display {
-    // background: $panel-glass;
-    padding: 0px 16px;
-    // border-radius: $radius-md;
-    // border: 1px solid $tile-border;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.state-display__container {
     text-align: left;
-    // min-width: 90px;
 }
 
 .state-display__label {
@@ -343,3 +345,119 @@
     background: none;
     background-color: none;
 }
+
+.next-level-btn {
+    height: 44px;
+    box-sizing: border-box;
+    background-color: $success;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.next-level-btn.is-glowing {
+    animation: pulse-success 1.5s infinite;
+}
+
+/* 
+* =============================================
+* CELEBRATION ANIMATIONS (FIREWORKS)
+* =============================================
+*/
+.fireworks-celebration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+    overflow: hidden;
+}
+.fireworks-celebration.is-active {
+    display: block;
+}
+.firework {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0; /* Only pseudo-elements are visible */
+    animation: show-and-hide 3s forwards; /* Controls the entire element lifetime */
+}
+
+@keyframes show-and-hide {
+    0% { opacity: 1; }
+    99% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Assign positions and delays */
+.firework:nth-child(1) { top: 20%; left: 25%; animation-delay: 0.2s; }
+.firework:nth-child(2) { top: 50%; left: 70%; animation-delay: 0.5s; }
+.firework:nth-child(3) { top: 60%; left: 30%; animation-delay: 1.0s; }
+.firework:nth-child(4) { top: 35%; left: 55%; animation-delay: 1.3s; }
+.firework:nth-child(5) { top: 75%; left: 50%; animation-delay: 1.5s; }
+
+.firework::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    /* Start with zero size shadows to make them appear */
+    box-shadow: 
+        0 0 0 0 rgba(255,255,0,0.7), 0 0 0 0 rgba(255,0,255,0.7),
+        0 0 0 0 rgba(0,255,255,0.7), 0 0 0 0 rgba(0,255,0,0.7);
+    animation: burst 3.0s ease-out forwards;
+    animation-delay: inherit; /* Inherit delay from parent */
+}
+
+@mixin burst($size: 10px, $spread: 80px, $fade: -10px) {
+  @keyframes burst {
+    0% {
+      box-shadow:
+        0 -#{$size} 0 0 rgba(255,255,0,0.7),
+        #{$size} 0 0 0 rgba(255,255,0,0.7),
+        0 #{$size} 0 0 rgba(255,255,0,0.7),
+        -#{$size} 0 0 0 rgba(255,255,0,0.7),
+
+        #{0.7*$size} -#{0.7*$size} 0 0 rgba(255,0,255,0.7),
+        #{0.7*$size} #{0.7*$size} 0 0 rgba(255,0,255,0.7),
+        -#{0.7*$size} #{0.7*$size} 0 0 rgba(255,0,255,0.7),
+        -#{0.7*$size} -#{0.7*$size} 0 0 rgba(255,0,255,0.7),
+
+        0 -#{1.5*$size} 0 0 rgba(0,255,255,0.7),
+        #{1.5*$size} 0 0 0 rgba(0,255,255,0.7),
+        0 #{1.5*$size} 0 0 rgba(0,255,255,0.7),
+        -#{1.5*$size} 0 0 0 rgba(0,255,255,0.7),
+
+        #{1.1*$size} -#{1.1*$size} 0 0 rgba(0,255,0,0.7),
+        #{1.1*$size} #{1.1*$size} 0 0 rgba(0,255,0,0.7),
+        -#{1.1*$size} #{1.1*$size} 0 0 rgba(0,255,0,0.7),
+        -#{1.1*$size} -#{1.1*$size} 0 0 rgba(0,255,0,0.7);
+    }
+    100% {
+      box-shadow:
+        0 -#{$spread} 0 #{$fade} rgba(255,255,0,0),
+        #{$spread} 0 0 #{$fade} rgba(255,255,0,0),
+        0 #{$spread} 0 #{$fade} rgba(255,255,0,0),
+        -#{$spread} 0 0 #{$fade} rgba(255,255,0,0),
+
+        #{0.7*$spread} -#{0.7*$spread} 0 #{$fade} rgba(255,0,255,0),
+        #{0.7*$spread} #{0.7*$spread} 0 #{$fade} rgba(255,0,255,0),
+        -#{0.7*$spread} #{0.7*$spread} 0 #{$fade} rgba(255,0,255,0),
+        -#{0.7*$spread} -#{0.7*$spread} 0 #{$fade} rgba(255,0,255,0),
+
+        0 -#{1.5*$spread} 0 #{$fade} rgba(0,255,255,0),
+        #{1.5*$spread} 0 0 #{$fade} rgba(0,255,255,0),
+        0 #{1.5*$spread} 0 #{$fade} rgba(0,255,255,0),
+        -#{1.5*$spread} 0 0 #{$fade} rgba(0,255,255,0),
+
+        #{1.05*$spread} -#{1.05*$spread} 0 #{$fade} rgba(0,255,0,0),
+        #{1.05*$spread} #{1.05*$spread} 0 #{$fade} rgba(0,255,0,0),
+        -#{1.05*$spread} #{1.05*$spread} 0 #{$fade} rgba(0,255,0,0),
+        -#{1.05*$spread} -#{1.05*$spread} 0 #{$fade} rgba(0,255,0,0);
+    }
+  }
+}
+
+@include burst(12px, 160px, -8px);

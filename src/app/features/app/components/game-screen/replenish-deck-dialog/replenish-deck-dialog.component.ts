@@ -19,4 +19,8 @@ export class ReplenishDeckDialogComponent {
   select(id: number) {
     this.dialogRef.close(id);
   }
+
+  close() {
+    this.dialogRef.close(-1);
+  }
 }
