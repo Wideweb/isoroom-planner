@@ -366,6 +366,8 @@
 */
 .fireworks-celebration {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     inset: 0;
@@ -392,11 +394,17 @@
 }
 
 /* Assign positions and delays */
-.firework:nth-child(1) { top: 20%; left: 25%; animation-delay: 0.2s; }
-.firework:nth-child(2) { top: 50%; left: 70%; animation-delay: 0.5s; }
-.firework:nth-child(3) { top: 60%; left: 30%; animation-delay: 1.0s; }
-.firework:nth-child(4) { top: 35%; left: 55%; animation-delay: 1.3s; }
-.firework:nth-child(5) { top: 75%; left: 50%; animation-delay: 1.5s; }
+.firework:nth-child(1) { top: 20%; left: 25%; }
+.firework:nth-child(2) { top: 50%; left: 70%; }
+.firework:nth-child(3) { top: 60%; left: 30%; }
+.firework:nth-child(4) { top: 35%; left: 55%; }
+.firework:nth-child(5) { top: 75%; left: 50%; }
+
+.firework:nth-child(1)::before { animation-delay: 0.2s; }
+.firework:nth-child(2)::before { animation-delay: 0.5s; }
+.firework:nth-child(3)::before { animation-delay: 1.0s; }
+.firework:nth-child(4)::before { animation-delay: 1.3s; }
+.firework:nth-child(5)::before { animation-delay: 1.5s; }
 
 .firework::before {
     content: '';
@@ -410,7 +418,7 @@
         0 0 0 0 rgba(255,255,0,0.7), 0 0 0 0 rgba(255,0,255,0.7),
         0 0 0 0 rgba(0,255,255,0.7), 0 0 0 0 rgba(0,255,0,0.7);
     animation: burst 3.0s ease-out forwards;
-    animation-delay: inherit; /* Inherit delay from parent */
+    // animation-delay: inherit; /* Inherit delay from parent */
 }
 
 @mixin burst($size: 10px, $spread: 80px, $fade: -10px) {
