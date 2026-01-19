@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, Subject } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
 import { GameLevelData } from 'src/app/core/game.model';
@@ -6,6 +6,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameProgressState } from '../../states/game-progress.state';
 import { GameProgressLoadLevel, GameProgressLoadNextTask, GameProgressSubmitLevel } from '../../states/game-progress.actions';
 import { GameLevelSubmitResultDto } from '../../models/game-progress.model';
+import { GameLevelComponent } from './game-level/game-level.component';
+import { GameTutorialManager } from '../../services/game-tutorial.manager';
+import { GameEvent } from '../../models/game-event.model';
 
 const FACTS = [
     'The concept of an "open floor plan" became popular in the 1970s to create a sense of space and light.',
@@ -36,6 +39,8 @@ export class GameScreenComponent implements OnInit, OnDestroy {
   @Select(GameProgressState.levelLoaded)
   public loaded$!: Observable<boolean>;
 
+  public tutorialManager: GameTutorialManager | null = null;
+
   private hideSubject = new BehaviorSubject<boolean>(true);
   public hidden$ = this.hideSubject.asObservable();
 
@@ -46,7 +51,12 @@ export class GameScreenComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<boolean> = new Subject<boolean>();
 
-  constructor(private store: Store, private route: ActivatedRoute, private router: Router) { }
+  constructor(
+    private store: Store,
+    private route: ActivatedRoute,
+    private router: Router,
+    private zone: NgZone
+  ) { }
 
   async ngOnInit() {
     this.fact = FACTS[Math.floor(Math.random() * FACTS.length)];
@@ -68,9 +78,9 @@ export class GameScreenComponent implements OnInit, OnDestroy {
     this.hideSubject.next(true);
     await this.delay(400);
     this.showLoadingSubject.next(true);
-    await this.delay(2000);
-    this.store.dispatch(new GameProgressLoadNextTask());
-    await this.delay(2000);
+    await this.delay(1000);
+    await firstValueFrom(this.store.dispatch(new GameProgressLoadNextTask()));
+    await this.delay(1000);
     this.showLoadingSubject.next(false);
     this.hideSubject.next(false);
   }
@@ -85,6 +95,29 @@ export class GameScreenComponent implements OnInit, OnDestroy {
     this.hideSubject.next(true);
     await this.delay(400);
     this.router.navigate(['/levels']);
+  }
+
+  async gameReady(component: GameLevelComponent) {
+    await this.delay(1000);
+
+    if (this.store.selectSnapshot(GameProgressState.isTutorial)) {
+      this.tutorialManager = new GameTutorialManager(component, this.zone);
+      this.tutorialManager.startTutorial();
+    } else {
+      this.tutorialManager = null;
+    }
+  }
+
+  async handleGameEvent(event: GameEvent) {
+    if (this.tutorialManager?.isTutorialActive) {
+      await this.tutorialManager.handleEvent(event);
+
+      if (this.tutorialManager.isTutorialCompleted) {
+        await this.delay(1000);
+        await firstValueFrom(this.store.dispatch(new GameProgressSubmitLevel({id: -1, accepted: true, rejected: false, score: 0})));
+        this.toNextLevel();
+      }
+    }
   }
 
   ngOnDestroy(): void {

@@ -7,6 +7,7 @@ export interface GameLevelProgressDto {
     accepted: boolean;
     rejected: boolean;
     score: number;
+    tutorial: boolean;
 }
 
 export interface GameProgressDto {

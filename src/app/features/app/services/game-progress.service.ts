@@ -15,17 +15,19 @@ const FAKE_GAME_PROGRESS_DATA: GameProgressDto = {
       premiumLock: false,
       accepted: false,
       rejected: false,
-      score: 0
+      score: 0,
+      tutorial: true,
     },
     {
       id: 2,
       order: 1,
-      locked: true,
+      locked: false,
       premium: false,
       premiumLock: false,
       accepted: false,
       rejected: false,
-      score: 0
+      score: 0,
+      tutorial: false,
     },
     {
       id: 3,
@@ -35,7 +37,8 @@ const FAKE_GAME_PROGRESS_DATA: GameProgressDto = {
       premiumLock: false,
       accepted: false,
       rejected: false,
-      score: 0
+      score: 0,
+      tutorial: false,
     },
     {
       id: 4,
@@ -45,7 +48,19 @@ const FAKE_GAME_PROGRESS_DATA: GameProgressDto = {
       premiumLock: false,
       accepted: false,
       rejected: false,
-      score: 0
+      score: 0,
+      tutorial: false,
+    },
+    {
+      id: 5,
+      order: 4,
+      locked: true,
+      premium: false,
+      premiumLock: false,
+      accepted: false,
+      rejected: false,
+      score: 0,
+      tutorial: false,
     }
   ]
 }

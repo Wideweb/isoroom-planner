@@ -27,6 +27,7 @@ import { FormsModule } from '@angular/forms';
 import { AppCommonModule } from "src/app/features/common/common.module";
 import { CommonModule } from '@angular/common';
 import { ReplenishDeckDialogComponent } from './components/game-screen/replenish-deck-dialog/replenish-deck-dialog.component';
+import { GameTutorialOverlayComponent } from './components/game-screen/game-tutorial-overlay/game-tutorial-overlay.component';
 
 export function initializeAppFactory(appInitService: AppInitService) {
   return (): Promise<any> => {
@@ -46,6 +47,7 @@ export function initializeAppFactory(appInitService: AppInitService) {
     GameScreenComponent,
     GameLevelComponent,
     ReplenishDeckDialogComponent,
+    GameTutorialOverlayComponent,
   ],
   imports: [
     BrowserModule,

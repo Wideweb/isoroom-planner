@@ -1,0 +1,105 @@
+@import 'common.scss';
+
+:host {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: block;
+    pointer-events: none;
+}
+
+.tutorial-highlight-box {
+    display: none;
+    position: absolute;
+    border-radius: $radius-md;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    transition: all $dur-medium $easing-soft;
+    pointer-events: none;
+    z-index: 10001;
+}
+
+.tutorial-blocker {
+    display: none;
+    position: absolute;
+    z-index: 10000;
+    pointer-events: all;
+    background-color: red;
+    opacity: 0.0;
+}
+
+.tutorial-textbox {
+    position: absolute;
+    background: $panel-glass-strong;
+    padding: 1.5rem;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-strong;
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: $text-primary;
+    opacity: 0;
+    transition: all $dur-medium $easing-soft;
+    pointer-events: all;
+    z-index: 10002;
+}
+.tutorial-textbox.is-visible {
+    opacity: 1;
+}
+
+.tutorial-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.tutorial-buttons button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.tutorial-hand-icon {
+    pointer-events: none;
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    color: $white;
+    transform-origin: top left;
+    transition: all $dur-medium $easing-soft;
+    opacity: 0;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    z-index: 10003;
+
+    --start-x: 0px;
+    --start-y: 0px;
+    --end-x: 0px;
+    --end-y: 0px;
+}
+
+.tutorial-hand-icon.is-visible {
+    opacity: 1;
+}
+
+.tutorial-hand--tap {
+    animation: handTap 1.5s infinite $easing-soft;
+}
+
+.tutorial-hand--drag {
+    animation: handMove 1.5s infinite $easing-soft;
+}
+
+@keyframes handMove {
+    from {
+        transform: translate(var(--start-x), var(--start-y));
+    }
+    to {
+        transform: translate(var(--end-x), var(--end-y));
+    }
+}
+
+@keyframes handTap {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(0.85); }
+}

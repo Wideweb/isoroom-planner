@@ -1,13 +1,15 @@
-import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, HostListener, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, HostListener, Input, Output, EventEmitter, NgZone } from '@angular/core';
 
-import { FurnitureCategory, GameLevelData, SelectedFurnitureState } from '../../../../../core/game.model';
+import { GameLevelData, SelectedFurnitureState } from '../../../../../core/game.model';
 import GameLevel from '../../../../../core/game-level';
-import { firstValueFrom } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FailDialogComponent, FailDialogModel, FailtDialogSelection } from '../fail-dialog/fail-dialog.component';
 import { GameLevelSubmitResultDto } from '../../../models/game-progress.model';
 import { SuccessDialogComponent, SuccessDialogModel, SuccessDialogSelection } from '../success-dialog/success-dialog.component';
 import { ReplenishDeckDialogComponent, ReplenishDeckDialogModel } from '../replenish-deck-dialog/replenish-deck-dialog.component';
+import { waitForTime } from '../../../services/wait-for';
+import { createGameEvent, createGameEventFurnitureDragData, GameEvent, GameEventType } from '../../../models/game-event.model';
 
 @Component({
   selector: 'game-level',
@@ -39,8 +41,16 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   @Output()
   public onLevelsTransition = new EventEmitter<void>();
 
+  @Output() 
+  public ready = new EventEmitter<GameLevelComponent>();
+
+  @Output() 
+  public gameEvent = new EventEmitter<GameEvent>();
+
   @ViewChild('pixiCanvas', { static: true }) pixiCanvas!: ElementRef<HTMLCanvasElement>;
   private resizeObserver!: ResizeObserver;
+
+  public replenishDialogRef: MatDialogRef<ReplenishDeckDialogComponent, any> | null = null;
 
   public game = new GameLevel();
 
@@ -53,14 +63,18 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
   private dragToolbar = false;
   private toolbarScrollLeft = 0;
 
-  constructor(private dialog: MatDialog, private el: ElementRef) { }
+  private destroy$: Subject<boolean> = new Subject<boolean>();
 
-  @HostListener('window:resize', ['$event']) onResize(event: UIEvent) { 
+  constructor(private dialog: MatDialog, public el: ElementRef, private zone: NgZone) { }
+
+  @HostListener('window:resize', ['$event'])
+  async onResize(event: UIEvent) { 
     this.game.updateViewPort();
+    this.gameEvent.emit(createGameEvent(GameEventType.ViewPortUpdate, null));
   }
 
   @HostListener('window:pointermove', ['$event'])
-  onPointerMove(event: PointerEvent) { 
+  async onPointerMove(event: PointerEvent) { 
     if (!this.pixiCanvas || !this.pixiCanvas.nativeElement) return;
 
     if (this.isPointerDown) {
@@ -100,6 +114,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
     let y = event.clientY - rect.top;
 
     this.game.handlePointerMove(x, y);
+    this.gameEvent.emit(createGameEvent(GameEventType.FurnitureDrag, createGameEventFurnitureDragData(x, y, this.pointerSelectionFurnitureIndex)));
   }
 
   @HostListener('window:pointerup', ['$event'])
@@ -153,18 +168,26 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
     await this.game.init(this.pixiCanvas.nativeElement);
     await this.game.start(this.data);
 
+    this.ready.emit(this);
+    
+    this.game.pickUpFurniture$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async () => {
+        this.gameEvent.emit(createGameEvent(GameEventType.FurniturePickUp, null));
+      });
+
     //this.resizeObserver = new ResizeObserver(() => this.game.updateViewPort());
     //this.resizeObserver.observe(this.pixiCanvas.nativeElement.parentElement!);
   }
 
-  selectFurniture(index: number, event: PointerEvent) {
+  async selectFurniture(index: number, event: PointerEvent) {
     this.onPointerDown(event);
     this.pointerSelectionFurnitureIndex = index;
   }
 
   async submit() {
     const blocked = await this.game.submit();
-    await this.delay(500);
+    await waitForTime(500);
     if (blocked > 0) {
       this.onSubmitResult.emit({ id: this.id, accepted: false, rejected: true, score: 10 });
       await this.failPath(blocked);
@@ -214,6 +237,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
 
   public isReplenishShown() {
     if(!this.game.furnituresPool.groups.some(items => items.length > 0)) return false;
+    return true;
 
     if (this.game.furnituresRemain.length < 2) return true;
 
@@ -243,7 +267,7 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       'Plants, carpets, lamps'
     ];
 
-    const dialog$ = this.dialog
+    this.replenishDialogRef = this.dialog
       .open<ReplenishDeckDialogComponent, ReplenishDeckDialogModel, any>(ReplenishDeckDialogComponent, { 
         disableClose: true,
         data: { 
@@ -254,14 +278,17 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
             icon: it.group
           }))
         }
-      })
-      .afterClosed();
+      });
 
-      const selectedGroup = await firstValueFrom(dialog$);
+      this.gameEvent.emit(createGameEvent(GameEventType.ReplenishDialog, null));
+
+      const selectedGroup = await firstValueFrom(this.replenishDialogRef.afterClosed());
 
       if (selectedGroup >= 0) {
         const newItems = this.game.furnituresPool.takeFromGroup(selectedGroup, 3);
         newItems.forEach(it => this.game.furnituresAvailable.push(it));
+
+        this.gameEvent.emit(createGameEvent(GameEventType.ReplenishCategoryCompleted, null));
       }
   }
 
@@ -269,28 +296,42 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
     this.onLevelsTransition.emit();
   }
 
-  delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  cancelSelection(event: PointerEvent) {
+  async cancelSelection(event: PointerEvent) {
     event.stopPropagation();
     this.game.select(-1);
+
+    this.gameEvent.emit(createGameEvent(GameEventType.FurnitureCancel, null));
   }
 
-  rotateSelection(event: PointerEvent) {
+  async rotateSelection(event: PointerEvent) {
     event.stopPropagation();
     this.game.rotateSelected();
+
+    this.gameEvent.emit(createGameEvent(GameEventType.FurnitureRotate, null));
   }
 
-  placeSelection(event: PointerEvent) {
+  async placeSelection(event: PointerEvent) {
     event.stopPropagation();
     this.game.tryPlaceSelectedFurniture();
+
+    this.gameEvent.emit(createGameEvent(GameEventType.FurniturePlace, null));
+  }
+
+  async rotateCameraLeft() {
+    this.game.rotateCameraLeft();
+    this.gameEvent.emit(createGameEvent(GameEventType.CameraRotate, null));
+  }
+
+  async rotateCameraRight() {
+    this.game.rotateCameraRight();
+    this.gameEvent.emit(createGameEvent(GameEventType.CameraRotate, null));
   }
 
   ngOnDestroy() {
     //this.resizeObserver.disconnect();
     this.game.destroy();
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 
   onXChanged(event: any) {

@@ -53,7 +53,12 @@ export class GameProgressState {
 
   @Selector()
   static levels(state: GameProgressStateModel): GameLevelProgressDto[] | [] {
-    return state.userProgress?.levels || [];
+    return (state.userProgress?.levels || []).filter(it => !it.tutorial);
+  }
+
+  @Selector()
+  static isTutorial(state: GameProgressStateModel): boolean {
+    return state.currentLevelData?.isTutorial == true;
   }
 
   @Selector()
@@ -328,6 +333,7 @@ export class GameProgressState {
 
     try 
     {
+      action.payload.id = currentLevelId;
       await firstValueFrom(this.gameProgressService.submitLevel(action.payload));
 
       const accepted = action.payload.accepted;

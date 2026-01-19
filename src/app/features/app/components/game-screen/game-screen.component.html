@@ -8,7 +8,17 @@
         (onSwitchToNext)="toNextLevel()"
         (onMenuTransition)="toMenu()"
         (onLevelsTransition)="toLevels()"
+        (ready)="gameReady($event)"
+        (gameEvent)="handleGameEvent($event)"
     ></game-level>
+
+    <ng-container *ngIf="tutorialManager?.isTutorialActive && tutorialManager?.currentTutorialStep">
+        <game-tutorial-overlay
+            [step]="tutorialManager?.currentTutorialStep!"
+            (messageClosed)="tutorialManager?.advanceTutorial()"
+        ></game-tutorial-overlay>
+    </ng-container>
+
 </ng-container>
 <ng-container *ngIf="(showLoading$ | async)">
     <div class="loading-overlay centered-layout">

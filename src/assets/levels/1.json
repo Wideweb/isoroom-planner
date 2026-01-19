@@ -607,5 +607,8 @@
     }
   ],
 
+  "furnituresStart": [6],
+  "isTutorial": true,
+
   "assets": ["assets/atlases/art_deco-0.json"]
 }

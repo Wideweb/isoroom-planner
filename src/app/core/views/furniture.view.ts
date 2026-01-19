@@ -79,14 +79,28 @@ export default class FurnitureView extends BaseView {
 
     override draw(container: PIXI.Container) {
         this.container.removeChildren();
-        
-        const viewAngle = (this.prevPlacement.rotation + this.camera.rotation) % 360;
-        this.container.addChild(this.views[viewAngle / 90]);
+        this.container.addChild(this.currentView());
         super.draw(container);
     }
 
     public currentSprite() {
         const viewAngle = (this.prevPlacement.rotation + this.camera.rotation) % 360;
         return this.model.sprite[viewAngle / 90];
+    }
+
+    public currentView() {
+        const viewAngle = (this.prevPlacement.rotation + this.camera.rotation) % 360;
+        return this.views[viewAngle / 90];
+    }
+
+    public getBoundingClientRect() {
+        const view = this.currentView();
+        const size = view.getSize();
+        return {
+            left: view.position.x - size.width / 2,
+            top: view.position.y - size.height / 2,
+            width: size.width,
+            height: size.height
+        };
     }
 }

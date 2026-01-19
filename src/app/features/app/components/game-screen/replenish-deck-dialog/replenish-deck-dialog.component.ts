@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface ReplenishDeckDialogModel {
@@ -13,7 +13,8 @@ export interface ReplenishDeckDialogModel {
 export class ReplenishDeckDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ReplenishDeckDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ReplenishDeckDialogModel) { }
+    @Inject(MAT_DIALOG_DATA) public data: ReplenishDeckDialogModel,
+    private el: ElementRef) { }
 
 
   select(id: number) {
@@ -22,5 +23,9 @@ export class ReplenishDeckDialogComponent {
 
   close() {
     this.dialogRef.close(-1);
+  }
+
+  getCategoryCardBoundingClientRect() {
+    return this.el.nativeElement.querySelector('.category-card').getBoundingClientRect();
   }
 }

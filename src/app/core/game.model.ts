@@ -105,7 +105,9 @@ export class Camera {
 export interface GameLevelData {
   room: Room;
   furnitures: Furniture[];
+  furnituresStart: number[];
   assets: string[];
+  isTutorial: boolean;
 }
 
 // export class SortedList<K, V> {
