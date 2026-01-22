@@ -15,6 +15,9 @@ export default class FurniturePreviewView extends BaseView {
     private prevIsValid = true;
     private cameraVersion = -1;
 
+    private footprintContainer = new PIXI.Container();
+    private accessibilityContainer = new PIXI.Container();
+
     constructor(
         private tileWidth: Ref<number>,
         private tileHeight: Ref<number>,
@@ -38,6 +41,8 @@ export default class FurniturePreviewView extends BaseView {
         console.log('update furniture preview');
 
         this.container.removeChildren();
+        this.footprintContainer.removeChildren();
+        this.accessibilityContainer.removeChildren();
 
         const footprint = getFootprint(furniture, placement.position, placement.rotation);
         const accessibilityCells = getAccessibilityCells(furniture, placement.position, placement.rotation);
@@ -52,8 +57,9 @@ export default class FurniturePreviewView extends BaseView {
 
             quad.position.set(viewPos.x, viewPos.y);
 
-            this.container.addChild(quad);
+            this.footprintContainer.addChild(quad);
         });
+        this.container.addChild(this.footprintContainer);
 
         accessibilityCells.forEach(cellPos => {
             const viewPos = isoGridToView(cellPos, this.camera, this.tileWidth.value, this.tileHeight.value);
@@ -64,8 +70,9 @@ export default class FurniturePreviewView extends BaseView {
 
             quad.position.set(viewPos.x, viewPos.y);
 
-            this.container.addChild(quad);
+            this.accessibilityContainer.addChild(quad);
         });
+        this.container.addChild(this.accessibilityContainer);
 
         furnitureView.update2(deltaMs, placement, 0.5, isValid ? 0xffffff : 0xf87171);
         furnitureView.draw(this.container);
@@ -76,5 +83,19 @@ export default class FurniturePreviewView extends BaseView {
         this.furnitureView = furnitureView;
         this.prevIsValid = isValid;
         this.cameraVersion = this.camera.version;
+    }
+
+    public getAccessibilityCellsBoundingClientRect() {
+        const cells = this.accessibilityContainer.children.map(c => c);
+        
+        const minX = Math.min(...cells.map(c => c.position.x)) - this.tileWidth.value / 2 * this.camera.scale;
+        const minY = Math.min(...cells.map(c => c.position.y)) - this.tileHeight.value / 2 * this.camera.scale;
+
+        return {
+            left: minX,
+            top: minY,
+            width: this.accessibilityContainer.getSize().width,
+            height: this.accessibilityContainer.getSize().height
+        };
     }
 }

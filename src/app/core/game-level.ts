@@ -409,9 +409,7 @@ export default class GameLevel {
         // 3. Calculate tileWidth so that grid fits the screen
         const scaleX = canvasWidth / gridWidthPx;
         const scaleY = canvasHeight / gridHeightPx;
-        const scale = Math.min(scaleX, scaleY, 3.0);
-
-        console.log(scaleX, scaleY);
+        const scale = Math.min(scaleX, scaleY, 2.0);
 
         // 4. Move grid into the center
         const gridCenterX = (minX + maxX) / 2;
@@ -699,6 +697,11 @@ export default class GameLevel {
 
       const view = this.furnitureView[item.key];
       return view.getBoundingClientRect();
+    }
+
+    public getSelectedFurnitureAccessibilityBoundingClientRect() {
+      if (this.furnitureSelected < 0 || !this.furnitureSelectedView) return null;
+      return this.furnitureSelectedView.getAccessibilityCellsBoundingClientRect();
     }
 
     public destroy() {
