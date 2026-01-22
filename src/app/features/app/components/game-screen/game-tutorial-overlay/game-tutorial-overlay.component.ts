@@ -16,6 +16,9 @@ export class GameTutorialOverlayComponent implements OnChanges {
   @Output()
   messageClosed = new EventEmitter<void>();
 
+  @Output()
+  skipTutorial = new EventEmitter<void>();
+
   @ViewChild('tutorialTextbox') tutorialTextbox!: ElementRef<HTMLDivElement>;
   @ViewChild('tutorialHighlightBox') tutorialHighlightBox!: ElementRef<HTMLDivElement>;
   @ViewChild('tutorialHandIcon') tutorialHandIcon!: ElementRef<HTMLDivElement>;
@@ -206,7 +209,7 @@ export class GameTutorialOverlayComponent implements OnChanges {
     if (this.step.action == 'game') {
       this.tutorialButtons.nativeElement.style.display = 'none';
     } else {
-      this.tutorialButtons.nativeElement.style.display = 'block';
+      this.tutorialButtons.nativeElement.style.display = 'flex';
     }
 
     this.positionBlockArea(this.step.blockArea, targetArea, 10);

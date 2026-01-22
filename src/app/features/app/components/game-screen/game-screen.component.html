@@ -7,7 +7,7 @@
         (onSubmitResult)="handleSubmitResult($event)"
         (onSwitchToNext)="toNextLevel()"
         (onMenuTransition)="toMenu()"
-        (onLevelsTransition)="toLevels()"
+        (onLevelsTransition)="toMenu()"
         (ready)="gameReady($event)"
         (gameEvent)="handleGameEvent($event)"
     ></game-level>
@@ -16,6 +16,7 @@
         <game-tutorial-overlay
             [step]="tutorialManager?.currentTutorialStep!"
             (messageClosed)="tutorialManager?.advanceTutorial()"
+            (skipTutorial)="skipTutorial()"
         ></game-tutorial-overlay>
     </ng-container>
 

@@ -62,6 +62,10 @@ export class Grid {
         return cell.x >= 0 && cell.x < this.width && cell.y >= 0 && cell.y < this.height;
     }
 
+    public inBounds2(x: number, y: number) {
+        return x >= 0 && x < this.width && y >= 0 && y < this.height;
+    }
+
     public getCellsOnLine(from: Vector2, to: Vector2) {
         const cells: GridCell[] = []
 
@@ -96,5 +100,15 @@ export class Grid {
         }
 
         return cells
+    }
+
+    clear() {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                this.cells[y][x].refs.length = 0;
+                this.cells[y][x].flags = 0;
+                this.cells[y][x].zoneId = 0;
+            }
+        }
     }
 }

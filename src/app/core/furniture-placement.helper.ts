@@ -64,6 +64,18 @@ export const placeFurniture = (grid: Grid, item: Furniture, position: Vector2, r
     grid.addFlag(GridCellState.FurnitureAccessibilityCell, accessibilityCells);
 }
 
+export const getFurnitureSize = (item: Furniture) => {
+    let size = 0;
+    for (let i = 0; i < item.footprint.length; i++) {
+        for (let j = 0; j < item.footprint[i].length; j++) {
+            if (item.footprint[i][j] == 1) {
+                size++;
+            }
+        }
+    }
+    return size;
+}
+
 export const getFootprint = (item: Furniture, position: Vector2, rotation: Rotation): Vector2[] => {
     const cells: Vector2[] = [];
     const footprint = item.footprint;

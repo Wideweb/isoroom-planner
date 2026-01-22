@@ -10,6 +10,7 @@ import { SuccessDialogComponent, SuccessDialogModel, SuccessDialogSelection } fr
 import { ReplenishDeckDialogComponent, ReplenishDeckDialogModel } from '../replenish-deck-dialog/replenish-deck-dialog.component';
 import { waitForTime } from '../../../services/wait-for';
 import { createGameEvent, createGameEventFurnitureDragData, GameEvent, GameEventType } from '../../../models/game-event.model';
+import { FailGameDialogComponent } from '../fail-game-dialog/fail-game-dialog.component';
 
 @Component({
   selector: 'game-level',
@@ -176,6 +177,10 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
         this.gameEvent.emit(createGameEvent(GameEventType.FurniturePickUp, null));
       });
 
+    this.game.fail$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async () => this.failGame());
+
     //this.resizeObserver = new ResizeObserver(() => this.game.updateViewPort());
     //this.resizeObserver.observe(this.pixiCanvas.nativeElement.parentElement!);
   }
@@ -235,6 +240,15 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
       }
   }
 
+  async failGame() {
+    const dialog$ = this.dialog
+      .open<FailGameDialogComponent>(FailGameDialogComponent, { disableClose: true })
+      .afterClosed();
+
+      await firstValueFrom(dialog$);
+      this.onMenuTransition.emit();
+  }
+
   public isReplenishShown() {
     if(!this.game.furnituresPool.groups.some(items => items.length > 0)) return false;
     return true;
@@ -289,6 +303,8 @@ export class GameLevelComponent implements AfterViewInit, OnDestroy {
         newItems.forEach(it => this.game.furnituresAvailable.push(it));
 
         this.gameEvent.emit(createGameEvent(GameEventType.ReplenishCategoryCompleted, null));
+        this.game.moves++;
+        this.game.updateScore();
       }
   }
 

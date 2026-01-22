@@ -10,6 +10,7 @@
 <div #tutorialTextbox class="tutorial-textbox">
     <p #tutorialText></p>
     <div class="tutorial-buttons" #tutorialButtons>
-        <button id="tutorial-ok-btn" class="button-base button--secondary" (click)="messageClosed.emit()">OK</button>
+        <button *ngIf="step && step.id == 0" id="tutorial-skip-btn" class="button-base button--secondary" (click)="skipTutorial.emit()">Skip Tutorial</button>
+        <button id="tutorial-ok-btn" class="button-base button--link" (click)="messageClosed.emit()">OK</button>
     </div>
 </div>

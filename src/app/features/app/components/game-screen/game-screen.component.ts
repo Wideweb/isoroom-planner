@@ -120,6 +120,12 @@ export class GameScreenComponent implements OnInit, OnDestroy {
     }
   }
 
+  async skipTutorial() {
+    this.tutorialManager?.endTutorial();
+    await firstValueFrom(this.store.dispatch(new GameProgressSubmitLevel({id: -1, accepted: true, rejected: false, score: 0})));
+    this.toNextLevel();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.unsubscribe();

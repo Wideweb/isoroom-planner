@@ -52,6 +52,45 @@ export function* findPathIterative(grid: Grid, start: Vector2): Generator<Pathfi
     }
 }
 
+export function findAccessibleRefs(grid: Grid, start: Vector2): Set<number> {
+    const refs = new Set<number>();
+
+    const startCell = grid.cells[start.y][start.x];
+    if (!isWalkable(startCell)) {
+        return refs;
+    }
+
+    const dist = new Map<string, number>();
+    const visited = new Set<string>();
+    const frontier: [number, GridCell][] = [];
+
+    dist.set(key(startCell), 0);
+    frontier.push([0, startCell]);
+
+    while (frontier.length > 0) {
+        frontier.sort((a, b) => a[0] - b[0]);
+        const [d, cell] = frontier.shift()!;
+        const ck = key(cell);
+
+        if (visited.has(ck)) continue;
+        visited.add(ck);
+
+        cell.refs.forEach(ref => refs.add(ref));
+
+        for (const n of getNeighbors(grid, cell)) {
+            if (!isWalkable(n)) continue;
+            const nk = key(n);
+            const nd = d + 1;
+            if (nd < (dist.get(nk) ?? Infinity)) {
+                dist.set(nk, nd);
+                frontier.push([nd, n]);
+            }
+        }
+    }
+
+    return refs;
+}
+
 
 function isWalkable(cell: GridCell): boolean {
     const flags = cell.flags;
