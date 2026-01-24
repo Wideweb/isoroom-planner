@@ -409,7 +409,7 @@ export default class GameLevel {
         // 3. Calculate tileWidth so that grid fits the screen
         const scaleX = canvasWidth / gridWidthPx;
         const scaleY = canvasHeight / gridHeightPx;
-        const scale = Math.min(scaleX, scaleY, 2.0);
+        const scale = Math.min(scaleX, scaleY, 3.0);
 
         // 4. Move grid into the center
         const gridCenterX = (minX + maxX) / 2;
